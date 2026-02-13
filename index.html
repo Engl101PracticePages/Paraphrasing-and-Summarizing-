@@ -6,70 +6,126 @@
   <title>Paraphrase + Summary Practice (BLS OOH)</title>
   <style>
     :root{
-      --bg:#f6f8ff;
+      /* Friendly, calm palette */
+      --bg1:#f7fbff;
+      --bg2:#fff7fb;
+      --card:#ffffff;
       --ink:#0f172a;
       --muted:#475569;
-      --card:#ffffff;
       --border:#e2e8f0;
-      --accent:#2563eb;
-      --accent2:#0ea5e9;
+      --shadow: 0 16px 34px rgba(15, 23, 42, 0.10);
+
+      --primary:#2563eb;   /* blue */
+      --primary2:#06b6d4;  /* teal */
+      --soft:#eff6ff;
+      --soft2:#ecfeff;
+      --soft3:#fff7ed;
+
       --good:#16a34a;
       --warn:#f59e0b;
       --bad:#ef4444;
-      --soft:#eef2ff;
-      --soft2:#e0f2fe;
-      --radius:18px;
-      --shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
+
+      --radius:20px;
+      --radius2:26px;
+
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family:var(--sans);
       color:var(--ink);
       background:
-        radial-gradient(1200px 500px at 10% 0%, #e0f2fe 0%, transparent 70%),
-        radial-gradient(900px 400px at 90% 0%, #eef2ff 0%, transparent 70%),
-        var(--bg);
+        radial-gradient(1100px 520px at 10% 0%, #dbeafe 0%, transparent 70%),
+        radial-gradient(900px 420px at 90% 0%, #cffafe 0%, transparent 70%),
+        radial-gradient(900px 420px at 50% 110%, #ffe4f1 0%, transparent 70%),
+        linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
     }
-    .wrap{max-width:1100px; margin:0 auto; padding:18px;}
-    .top{
-      background:linear-gradient(90deg, #2563eb 0%, #0ea5e9 100%);
-      color:#fff;
-      border-radius:24px;
+
+    .wrap{max-width:980px; margin:0 auto; padding:18px;}
+    .hero{
+      border-radius: var(--radius2);
       padding:18px 18px;
+      background: linear-gradient(90deg, rgba(37,99,235,0.92) 0%, rgba(6,182,212,0.90) 100%);
+      color:#fff;
       box-shadow: var(--shadow);
     }
-    h1{margin:0; font-size:22px; letter-spacing:.2px;}
+    h1{margin:0; font-size:22px; letter-spacing:.2px}
     .sub{margin-top:6px; opacity:.95; line-height:1.35; font-size:14px; max-width:900px;}
-    .row{display:grid; grid-template-columns:1fr; gap:14px; margin-top:14px;}
-    @media(min-width:980px){ .row.two{grid-template-columns:1fr 1fr;} }
+    .sub strong{color:#fff}
 
     .card{
+      margin-top:14px;
       background:var(--card);
       border:1px solid var(--border);
       border-radius:var(--radius);
       padding:14px;
       box-shadow: var(--shadow);
     }
-    .card h2{margin:0 0 8px 0; font-size:16px;}
+
+    /* Wizard */
+    .wizardTop{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:12px;
+    }
+
+    .stepDots{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+    .dot{
+      width:34px; height:34px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.18);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
+    }
+    .dot.active{
+      background:#fff;
+      color:#0f172a;
+      border-color:#fff;
+    }
+    .dot.done{
+      background: rgba(255,255,255,0.85);
+      color:#0f172a;
+      border-color: rgba(255,255,255,0.85);
+    }
+
+    .progressWrap{min-width:240px; flex:1; max-width:420px;}
+    .progressMeta{display:flex; justify-content:space-between; font-size:12px; opacity:.9;}
+    .bar{height:12px; border-radius:999px; background:rgba(255,255,255,0.22); border:1px solid rgba(255,255,255,0.30); overflow:hidden;}
+    .bar > div{height:100%; width:0%; background: #fff;}
+
+    /* Content blocks */
+    h2{margin:0 0 8px 0; font-size:16px}
     .hint{color:var(--muted); font-size:13px; line-height:1.35}
     label{display:block; font-size:13px; color:var(--muted); margin:10px 0 6px;}
     textarea, input, select{
       width:100%;
       border:1px solid var(--border);
-      border-radius:14px;
-      padding:10px 12px;
+      border-radius:16px;
+      padding:11px 12px;
       font-size:14px;
       outline:none;
       background:#fff;
+      color:var(--ink);
     }
     textarea{min-height:130px; resize:vertical;}
+    select{max-width:260px;}
+
     .mini{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.35}
     .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
     .chip{
-      padding:6px 10px;
+      padding:7px 10px;
       border-radius:999px;
       border:1px solid var(--border);
       background: #f8fafc;
@@ -77,375 +133,362 @@
       color:var(--muted);
     }
 
-    /* Step navigation */
-    .steps{
+    .callout{
+      margin-top:10px;
+      border-radius:18px;
+      border:1px solid #bfdbfe;
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 75%);
+      padding:12px;
+    }
+    .callout.teal{
+      border-color:#99f6e4;
+      background: linear-gradient(180deg, #ecfeff 0%, #ffffff 75%);
+    }
+    .callout.peach{
+      border-color:#fed7aa;
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 75%);
+    }
+    .calloutTitle{font-weight:900; margin-bottom:6px;}
+    .bigBox{
+      background: #f8fafc;
+      border:1px dashed #cbd5e1;
+      border-radius:16px;
+      padding:12px;
+      color:var(--ink);
+      line-height:1.4;
+      font-size:14px;
+      white-space:pre-wrap;
+    }
+    .bigBox.mono{font-family:var(--mono); font-size:12.5px;}
+
+    mark{background: rgba(245, 158, 11, 0.25); padding:0 3px; border-radius:6px;}
+
+    .btnRow{
       display:flex;
-      gap:8px;
+      gap:10px;
       flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
       margin-top:12px;
     }
-    .stepBtn{
-      border:1px solid var(--border);
-      background:#fff;
-      border-radius:999px;
-      padding:10px 12px;
-      font-weight:800;
-      cursor:pointer;
-      font-size:13px;
-    }
-    .stepBtn.active{
-      border-color:#93c5fd;
-      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 90%);
-    }
-    .stepTag{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:22px;
-      height:22px;
-      border-radius:999px;
-      margin-right:8px;
-      background: var(--soft2);
-      border:1px solid #bae6fd;
-      color:#0369a1;
-      font-weight:900;
-      font-size:12px;
-    }
-
-    .btnRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-top:10px;}
     .btn{
       border:1px solid var(--border);
       background:#fff;
-      border-radius:14px;
-      padding:10px 12px;
+      border-radius:16px;
+      padding:11px 12px;
       cursor:pointer;
       font-weight:900;
-      font-size:13px;
+      font-size:14px;
       display:inline-flex;
       align-items:center;
       gap:8px;
     }
     .btn.primary{
-      background: linear-gradient(90deg, #2563eb 0%, #0ea5e9 100%);
+      background: linear-gradient(90deg, rgba(37,99,235,0.98) 0%, rgba(6,182,212,0.95) 100%);
       color:#fff;
       border-color: transparent;
     }
     .btn.soft{
       background: var(--soft);
       border-color:#c7d2fe;
-      color:#1e293b;
+      color:#0f172a;
     }
     .btn:disabled{opacity:.55; cursor:not-allowed;}
 
-    .bigBox{
-      background: #f8fafc;
-      border:1px dashed #cbd5e1;
-      border-radius:16px;
-      padding:12px;
-      color:#0f172a;
-      line-height:1.4;
-      font-size:14px;
-      white-space:pre-wrap;
-    }
-    .bigBox.mono{font-family:var(--mono); font-size:12.5px;}
-    .callout{
-      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 80%);
-      border:1px solid #bfdbfe;
-      border-radius:16px;
-      padding:12px;
-      margin-top:10px;
-    }
-    .calloutTitle{font-weight:900; margin-bottom:6px;}
     .checkRow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
     .check{
       display:flex; align-items:center; gap:8px;
       border:1px solid var(--border);
       border-radius:999px;
-      padding:7px 10px;
+      padding:8px 10px;
       background:#fff;
       font-size:12.5px;
-      font-weight:800;
+      font-weight:900;
+      color:#0f172a;
     }
-    .dot{width:10px; height:10px; border-radius:999px; background:var(--warn);}
-    .dot.ok{background:var(--good);}
-    .dot.bad{background:var(--bad);}
+    .lightDot{width:10px; height:10px; border-radius:999px; background:var(--warn);}
+    .lightDot.ok{background:var(--good);}
+    .lightDot.bad{background:var(--bad);}
 
-    .bar{height:12px; background:#f1f5f9; border:1px solid var(--border); border-radius:999px; overflow:hidden;}
-    .bar > div{height:100%; width:0%; background: linear-gradient(90deg, #2563eb 0%, #0ea5e9 100%);}
+    .simWrap{margin-top:8px;}
+    .simBar{height:12px; border-radius:999px; background:#f1f5f9; border:1px solid var(--border); overflow:hidden;}
+    .simBar > div{height:100%; width:0%; background: linear-gradient(90deg, var(--primary) 0%, var(--primary2) 100%);}
 
-    mark{background: rgba(245, 158, 11, 0.25); padding:0 3px; border-radius:6px;}
-    .split{display:grid; gap:12px;}
-    @media(min-width:980px){ .split{grid-template-columns:1fr 1fr;} }
+    .hide{
+      filter: blur(2px);
+      opacity: .30;
+      user-select:none;
+    }
 
+    /* Sentence labels */
     .sentenceRow{
       border:1px solid var(--border);
-      border-radius:16px;
+      border-radius:18px;
       padding:10px 12px;
       background:#fff;
       margin-bottom:10px;
     }
     .sentenceTop{display:flex; gap:10px; align-items:flex-start; justify-content:space-between;}
-    .sentenceText{flex:1; font-size:14px; line-height:1.45; color:#0f172a;}
-    select{max-width:240px;}
+    .sentenceText{flex:1; font-size:14px; line-height:1.45; color:var(--ink);}
 
-    .hide{
-      filter: blur(2px);
-      opacity: .35;
-      user-select:none;
+    /* Footer note */
+    .footerNote{
+      margin-top:14px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+      text-align:center;
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <div class="top">
-      <h1>Paraphrase + Summary Practice (BLS Occupational Outlook Handbook)</h1>
+    <div class="hero">
+      <h1>Paraphrase + Summary Practice (BLS OOH)</h1>
       <div class="sub">
-        This is practice (not a grade). You’ll do it in 3 steps:
-        <strong>Understand</strong> → <strong>Paraphrase</strong> → <strong>Summarize</strong>.
-        The tool will highlight copied phrases and show you if you’re too close to the source.
+        You’ll do this in 4 tiny steps:
+        <strong>1) Paste</strong> → <strong>2) Understand</strong> → <strong>3) Paraphrase</strong> → <strong>4) Summarize</strong>.
+        <br/>This tool is practice (not a grade). It highlights copied phrases and shows “too close” warnings.
       </div>
-      <div class="steps" role="tablist" aria-label="Steps">
-        <button class="stepBtn active" data-tab="t1"><span class="stepTag">1</span>Understand</button>
-        <button class="stepBtn" data-tab="t2"><span class="stepTag">2</span>Paraphrase</button>
-        <button class="stepBtn" data-tab="t3"><span class="stepTag">3</span>Summarize</button>
+
+      <div class="wizardTop">
+        <div class="stepDots" aria-label="Steps">
+          <div class="dot active" data-step="1" title="Step 1">1</div>
+          <div class="dot" data-step="2" title="Step 2">2</div>
+          <div class="dot" data-step="3" title="Step 3">3</div>
+          <div class="dot" data-step="4" title="Step 4">4</div>
+        </div>
+
+        <div class="progressWrap">
+          <div class="progressMeta"><span>Progress</span><span id="progressPct">0%</span></div>
+          <div class="bar"><div id="progressBar"></div></div>
+        </div>
+
+        <button class="btn soft" id="resetBtn" title="Clear everything">Reset</button>
       </div>
     </div>
 
     <!-- STEP 1 -->
-    <section id="t1" class="tabPanel" style="margin-top:14px;">
-      <div class="row two">
-        <div class="card">
-          <h2>Step 1A: Paste your BLS source</h2>
-          <div class="hint">Paste <strong>2–5 sentences</strong> (or 1 short paragraph) from a BLS Occupational Outlook Handbook page.</div>
+    <section id="step1" class="card">
+      <h2>Step 1: Paste a short BLS excerpt</h2>
+      <div class="hint">Paste <strong>2–5 sentences</strong> or <strong>1 short paragraph</strong> from a BLS Occupational Outlook Handbook page.</div>
 
-          <label for="source">Source excerpt</label>
-          <textarea id="source" placeholder="Paste text from a BLS OOH page here…"></textarea>
+      <label for="source">Source excerpt</label>
+      <textarea id="source" placeholder="Paste BLS OOH text here…"></textarea>
 
-          <div class="split" style="margin-top:10px;">
-            <div>
-              <label for="jobTitle">Job title (for MLA parenthetical)</label>
-              <input id="jobTitle" placeholder="Example: Registered Nurses" />
-              <div class="mini">This makes your in-text citation look like MLA: <strong>("Job Title")</strong></div>
-            </div>
-            <div>
-              <label for="blsUrl">BLS OOH URL (for Works Cited)</label>
-              <input id="blsUrl" placeholder="Paste the OOH page URL" />
-            </div>
-          </div>
+      <div class="callout teal">
+        <div class="calloutTitle">Citations (easy copy)</div>
+        <div class="hint">MLA-style parenthetical looks like <strong>("Job Title")</strong>.</div>
 
-          <label for="accessed">Date accessed</label>
-          <input id="accessed" value="February 12, 2026" />
+        <label for="jobTitle">Job title</label>
+        <input id="jobTitle" placeholder="Example: Registered Nurses" />
+        <div class="mini">If you leave this blank, we’ll use: <strong>(U.S. Bureau of Labor Statistics)</strong></div>
 
-          <div class="callout">
-            <div class="calloutTitle">Your citations (copy these)</div>
-            <div class="hint" style="margin-bottom:8px;">Parenthetical (MLA-style) + Works Cited line.</div>
+        <label for="blsUrl">BLS OOH URL</label>
+        <input id="blsUrl" placeholder="Paste the OOH page URL" />
 
-            <div class="split">
-              <div>
-                <div class="hint" style="font-weight:900; margin-bottom:6px;">In-text (parenthetical)</div>
-                <div class="bigBox" id="inTextBox">("Job Title")</div>
-                <div class="btnRow">
-                  <button class="btn soft" id="useInText">Use this in both citation boxes</button>
-                </div>
-              </div>
-              <div>
-                <div class="hint" style="font-weight:900; margin-bottom:6px;">Works Cited (MLA)</div>
-                <div class="bigBox mono" id="worksCitedBox">“Job Title.” Occupational Outlook Handbook, U.S. Bureau of Labor Statistics, URL. Accessed Date.</div>
-                <div class="btnRow">
-                  <button class="btn" id="copyWorksCited">Copy Works Cited</button>
-                </div>
-              </div>
-            </div>
-          </div>
+        <label for="accessed">Date accessed</label>
+        <input id="accessed" value="February 12, 2026" />
 
-          <div class="chips">
-            <div class="chip" id="sourceWords">Words: 0</div>
-            <div class="chip" id="sourceSentences">Sentences: 0</div>
-          </div>
-
-          <div class="btnRow">
-            <button class="btn primary" id="toStep2">Next → Step 2</button>
-            <button class="btn" id="resetBtn">Reset everything</button>
+        <div class="callout" style="margin-top:10px;">
+          <div class="calloutTitle">Your in-text citation</div>
+          <div class="bigBox" id="inTextBox">("Job Title")</div>
+          <div class="btnRow" style="justify-content:flex-start;">
+            <button class="btn" id="useInText">Use this for both citations</button>
           </div>
         </div>
 
-        <div class="card">
-          <h2>Step 1B: Show you understand it</h2>
-          <div class="hint">These make Step 2 and Step 3 easier. Keep it simple.</div>
-
-          <label for="mainIdea">Main idea (one sentence)</label>
-          <textarea id="mainIdea" style="min-height:90px;" placeholder="What is the main point? Use plain language."></textarea>
-          <div class="mini" id="mainIdeaWords">0 words • Aim for ~15–30 words.</div>
-
-          <label for="keyPoints">3 key points (bullets)</label>
-          <textarea id="keyPoints" style="min-height:120px;" placeholder="- Key point 1&#10;- Key point 2&#10;- Key point 3">- </textarea>
-
-          <label for="keyTerms">Key terms (3–5 important words)</label>
-          <input id="keyTerms" placeholder="Example: pay, training, job growth" />
-          <div class="mini">Key terms can match the source. The goal is to change the sentences around them.</div>
-
-          <div class="btnRow">
-            <button class="btn soft" id="miniTipBtn">Show a quick tip</button>
-          </div>
-          <div id="miniTip" class="callout" style="display:none;">
-            <div class="calloutTitle">Quick tip</div>
-            <div class="hint">If you get stuck, read the source once, look away, and write what you remember in your own words. Then compare and fix.</div>
+        <div class="callout peach" style="margin-top:10px;">
+          <div class="calloutTitle">Works Cited line</div>
+          <div class="bigBox mono" id="worksCitedBox">“Job Title.” Occupational Outlook Handbook, U.S. Bureau of Labor Statistics, URL. Accessed Date.</div>
+          <div class="btnRow" style="justify-content:flex-start;">
+            <button class="btn" id="copyWorksCited">Copy Works Cited</button>
           </div>
         </div>
+      </div>
+
+      <div class="chips">
+        <div class="chip" id="sourceWords">Words: 0</div>
+        <div class="chip" id="sourceSentences">Sentences: 0</div>
+      </div>
+
+      <div class="btnRow">
+        <span class="hint">When you’re ready:</span>
+        <button class="btn primary" id="next1">Next →</button>
       </div>
     </section>
 
     <!-- STEP 2 -->
-    <section id="t2" class="tabPanel" style="display:none; margin-top:14px;">
-      <div class="row two">
-        <div class="card">
-          <h2>Step 2A: Set-it-aside mode (optional, but helpful)</h2>
-          <div class="hint">When the timer is running, the source is hidden so you write from memory.</div>
+    <section id="step2" class="card" style="display:none;">
+      <h2>Step 2: Show you understand it</h2>
+      <div class="hint">Keep it simple. These notes make the next steps easier.</div>
 
-          <div class="btnRow" style="justify-content:flex-start;">
-            <label style="display:flex; gap:10px; align-items:center; margin:0; font-weight:900; color:var(--muted);">
-              <input type="checkbox" id="lockMode" checked style="width:auto; transform:scale(1.15);" />
-              Hide source for 90 seconds
-            </label>
-            <button class="btn primary" id="startTimer">Start 90s</button>
-            <button class="btn" id="stopTimer" disabled>Stop</button>
-          </div>
+      <label for="mainIdea">Main idea (one sentence)</label>
+      <textarea id="mainIdea" style="min-height:92px;" placeholder="What is the main point?"></textarea>
+      <div class="mini" id="mainIdeaWords">0 words • Aim for ~15–30 words.</div>
 
-          <div class="callout" id="timerArea" style="display:none;">
-            <div class="calloutTitle">Timer: draft from memory</div>
-            <div class="hint" id="timerText">90s</div>
-          </div>
+      <label for="keyPoints">3 key points (bullets)</label>
+      <textarea id="keyPoints" style="min-height:120px;" placeholder="- Key point 1&#10;- Key point 2&#10;- Key point 3">- </textarea>
 
-          <label>Source (for comparing)</label>
-          <div class="bigBox" id="sourceDisplay"></div>
+      <label for="keyTerms">Key terms (3–5 important words)</label>
+      <input id="keyTerms" placeholder="Example: pay, training, job growth" />
+      <div class="mini">Key terms can match the source. The goal is to change the sentences around them.</div>
 
-          <label for="citePara">Citation (parenthetical)</label>
-          <input id="citePara" placeholder='Example: ("Registered Nurses")' />
+      <div class="callout">
+        <div class="calloutTitle">Tiny tip</div>
+        <div class="hint">If you get stuck later: read once, look away, write what you remember, then compare and fix.</div>
+      </div>
 
-          <div class="chips">
-            <div class="chip" id="paraWordChip">Your words: 0</div>
-            <div class="chip" id="sourceWordChip2">Source words: 0</div>
-          </div>
-
-          <div class="btnRow">
-            <button class="btn" id="backTo1">← Back to Step 1</button>
-            <button class="btn primary" id="toStep3">Next → Step 3</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Step 2B: Write your paraphrase</h2>
-          <div class="hint">Same meaning. New sentences. New wording. If you keep exact wording, use quotation marks.</div>
-
-          <label for="paraphrase">Your paraphrase</label>
-          <textarea id="paraphrase" placeholder="Write your paraphrase here…"></textarea>
-
-          <div class="callout">
-            <div class="calloutTitle">Self-checks</div>
-            <div class="hint">These are simple rules (not AI grading).</div>
-
-            <div class="hint" id="paraSimilarity" style="margin-top:8px;">Similarity: 0% (lower is better)</div>
-            <div class="bar" style="margin-top:6px;"><div id="paraSimBar"></div></div>
-            <div class="mini" id="paraLengthHint" style="margin-top:8px;"></div>
-            <div class="mini" id="coverageHint" style="margin-top:6px;"></div>
-
-            <div style="margin-top:10px; font-weight:900; color:var(--muted);">Copied phrase highlights</div>
-            <div class="bigBox" id="paraHighlights" style="margin-top:6px;"></div>
-            <div class="mini">Highlight = 3+ words in a row that appear in the source.</div>
-          </div>
-
-          <div class="btnRow">
-            <button class="btn" id="copyParaBtn" disabled>Copy paraphrase + cite</button>
-          </div>
-
-          <div class="checkRow">
-            <div class="check"><span class="dot" id="p1"></span>Wrote something</div>
-            <div class="check"><span class="dot" id="p2"></span>Has citation</div>
-            <div class="check"><span class="dot" id="p3"></span>Not too close</div>
-            <div class="check"><span class="dot" id="p4"></span>Few copied phrases</div>
-          </div>
-
-          <div id="paraNudges" class="callout" style="display:none;"></div>
-        </div>
+      <div class="btnRow">
+        <button class="btn soft" id="back2">← Back</button>
+        <button class="btn primary" id="next2">Next →</button>
       </div>
     </section>
 
     <!-- STEP 3 -->
-    <section id="t3" class="tabPanel" style="display:none; margin-top:14px;">
-      <div class="row two">
-        <div class="card">
-          <h2>Step 3A: Label the source sentences</h2>
-          <div class="hint">A summary keeps the main idea(s) only. Label each sentence to help you choose.</div>
+    <section id="step3" class="card" style="display:none;">
+      <h2>Step 3: Write your paraphrase</h2>
+      <div class="hint">Same meaning. New sentences. New wording. If you keep exact wording, use quotation marks.</div>
 
-          <div class="chips" id="labelChips">
-            <div class="chip" id="cMain">Main: 0</div>
-            <div class="chip" id="cDetail">Detail: 0</div>
-            <div class="chip" id="cExample">Example: 0</div>
-            <div class="chip" id="cBackground">Background: 0</div>
-            <div class="chip" id="cUnlabeled">Unlabeled: 0</div>
-          </div>
+      <div class="callout teal">
+        <div class="calloutTitle">Optional: “Set-it-aside” mode</div>
+        <div class="hint">Hide the source for 90 seconds so you write from memory.</div>
 
-          <div style="margin-top:10px;" id="sentenceList"></div>
-
-          <div class="btnRow">
-            <button class="btn" id="backTo2">← Back to Step 2</button>
-          </div>
+        <div class="btnRow" style="justify-content:flex-start;">
+          <label style="display:flex; gap:10px; align-items:center; margin:0; font-weight:900; color:var(--muted);">
+            <input type="checkbox" id="lockMode" checked style="width:auto; transform:scale(1.15);" />
+            Hide the source for 90 seconds
+          </label>
+          <button class="btn primary" id="startTimer">Start</button>
+          <button class="btn" id="stopTimer" disabled>Stop</button>
         </div>
 
-        <div class="card">
-          <h2>Step 3B: Write your summary</h2>
-          <div class="hint">Much shorter than the source. Keep only the main point(s).</div>
-
-          <label for="citeSum">Citation (parenthetical)</label>
-          <input id="citeSum" placeholder='Example: ("Registered Nurses")' />
-
-          <label for="summary">Your summary</label>
-          <textarea id="summary" placeholder="Write your summary here…"></textarea>
-
-          <div class="callout">
-            <div class="calloutTitle">Self-checks</div>
-            <div class="hint" id="sumSimilarity" style="margin-top:8px;">Similarity: 0% (lower is better)</div>
-            <div class="bar" style="margin-top:6px;"><div id="sumSimBar"></div></div>
-
-            <div class="chips" style="margin-top:10px;">
-              <div class="chip" id="sumWordChip">Summary: 0 words</div>
-              <div class="chip" id="sourceWordChip3">Source: 0 words</div>
-            </div>
-
-            <div class="mini" id="sumLengthHint" style="margin-top:8px;"></div>
-
-            <div style="margin-top:10px; font-weight:900; color:var(--muted);">Copied phrase highlights</div>
-            <div class="bigBox" id="sumHighlights" style="margin-top:6px;"></div>
-          </div>
-
-          <div class="btnRow">
-            <button class="btn" id="copySumBtn" disabled>Copy summary + cite</button>
-          </div>
-
-          <div class="checkRow">
-            <div class="check"><span class="dot" id="s1"></span>Wrote something</div>
-            <div class="check"><span class="dot" id="s2"></span>Has citation</div>
-            <div class="check"><span class="dot" id="s3"></span>Short enough</div>
-            <div class="check"><span class="dot" id="s4"></span>Not too close</div>
-          </div>
-
-          <div id="sumNudges" class="callout" style="display:none;"></div>
-
-          <div class="callout" style="margin-top:12px;">
-            <div class="calloutTitle">Final copy box</div>
-            <div class="hint">Copy this and paste into Canvas.</div>
-            <div class="btnRow">
-              <button class="btn primary" id="copyAllBtn" disabled>Copy all</button>
-            </div>
-            <div class="bigBox mono" id="finalBox" style="margin-top:10px;"></div>
-          </div>
+        <div class="callout" id="timerArea" style="display:none;">
+          <div class="calloutTitle">Timer</div>
+          <div class="hint" id="timerText">90s</div>
         </div>
+
+        <label>Source (for comparing)</label>
+        <div class="bigBox" id="sourceDisplay"></div>
+      </div>
+
+      <label for="citePara">Citation (parenthetical)</label>
+      <input id="citePara" placeholder='Example: ("Registered Nurses")' />
+
+      <label for="paraphrase">Your paraphrase</label>
+      <textarea id="paraphrase" placeholder="Write your paraphrase here…"></textarea>
+
+      <div class="chips">
+        <div class="chip" id="paraWordChip">Your words: 0</div>
+        <div class="chip" id="sourceWordChip2">Source words: 0</div>
+      </div>
+
+      <div class="callout peach">
+        <div class="calloutTitle">Self-checks</div>
+        <div class="hint" id="paraSimilarity">Similarity: 0% (lower is better)</div>
+        <div class="simWrap">
+          <div class="simBar"><div id="paraSimBar"></div></div>
+        </div>
+        <div class="mini" id="paraLengthHint" style="margin-top:8px;"></div>
+        <div class="mini" id="coverageHint" style="margin-top:6px;"></div>
+
+        <div style="margin-top:10px; font-weight:900; color:var(--muted);">Copied phrase highlights</div>
+        <div class="bigBox" id="paraHighlights" style="margin-top:6px;"></div>
+        <div class="mini">Highlight = 3+ words in a row that appear in the source.</div>
+      </div>
+
+      <div class="btnRow" style="justify-content:flex-start;">
+        <button class="btn" id="copyParaBtn" disabled>Copy paraphrase + cite</button>
+      </div>
+
+      <div class="checkRow">
+        <div class="check"><span class="lightDot" id="p1"></span>Wrote something</div>
+        <div class="check"><span class="lightDot" id="p2"></span>Has citation</div>
+        <div class="check"><span class="lightDot" id="p3"></span>Not too close</div>
+        <div class="check"><span class="lightDot" id="p4"></span>Few copied phrases</div>
+      </div>
+
+      <div id="paraNudges" class="callout" style="display:none;"></div>
+
+      <div class="btnRow">
+        <button class="btn soft" id="back3">← Back</button>
+        <button class="btn primary" id="next3">Next →</button>
       </div>
     </section>
 
-    <div class="card" style="margin-top:14px;">
-      <h2>Teacher notes</h2>
-      <div class="hint">Rule-based checks: repeated 3-word sequences + exact phrase highlighting. Summary length goal: ≤ 40% of source (with a minimum cap for short sources).</div>
+    <!-- STEP 4 -->
+    <section id="step4" class="card" style="display:none;">
+      <h2>Step 4: Write your summary</h2>
+      <div class="hint">Much shorter than the source. Keep only the main idea(s).</div>
+
+      <div class="callout teal">
+        <div class="calloutTitle">First: label the source sentences</div>
+        <div class="hint">This helps you choose what to keep for a summary.</div>
+
+        <div class="chips" id="labelChips">
+          <div class="chip" id="cMain">Main: 0</div>
+          <div class="chip" id="cDetail">Detail: 0</div>
+          <div class="chip" id="cExample">Example: 0</div>
+          <div class="chip" id="cBackground">Background: 0</div>
+          <div class="chip" id="cUnlabeled">Unlabeled: 0</div>
+        </div>
+
+        <div style="margin-top:10px;" id="sentenceList"></div>
+      </div>
+
+      <label for="citeSum">Citation (parenthetical)</label>
+      <input id="citeSum" placeholder='Example: ("Registered Nurses")' />
+
+      <label for="summary">Your summary</label>
+      <textarea id="summary" placeholder="Write your summary here…"></textarea>
+
+      <div class="callout peach">
+        <div class="calloutTitle">Self-checks</div>
+        <div class="hint" id="sumSimilarity">Similarity: 0% (lower is better)</div>
+        <div class="simWrap">
+          <div class="simBar"><div id="sumSimBar"></div></div>
+        </div>
+
+        <div class="chips" style="margin-top:10px;">
+          <div class="chip" id="sumWordChip">Summary: 0 words</div>
+          <div class="chip" id="sourceWordChip3">Source: 0 words</div>
+        </div>
+
+        <div class="mini" id="sumLengthHint" style="margin-top:8px;"></div>
+
+        <div style="margin-top:10px; font-weight:900; color:var(--muted);">Copied phrase highlights</div>
+        <div class="bigBox" id="sumHighlights" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="btnRow" style="justify-content:flex-start;">
+        <button class="btn" id="copySumBtn" disabled>Copy summary + cite</button>
+        <button class="btn primary" id="copyAllBtn" disabled>Copy all</button>
+      </div>
+
+      <div class="checkRow">
+        <div class="check"><span class="lightDot" id="s1"></span>Wrote something</div>
+        <div class="check"><span class="lightDot" id="s2"></span>Has citation</div>
+        <div class="check"><span class="lightDot" id="s3"></span>Short enough</div>
+        <div class="check"><span class="lightDot" id="s4"></span>Not too close</div>
+      </div>
+
+      <div id="sumNudges" class="callout" style="display:none;"></div>
+
+      <div class="callout" style="margin-top:12px;">
+        <div class="calloutTitle">Final copy box</div>
+        <div class="hint">Paste this into Canvas.</div>
+        <div class="bigBox mono" id="finalBox" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="btnRow">
+        <button class="btn soft" id="back4">← Back</button>
+        <button class="btn primary" id="finishBtn">Finish</button>
+      </div>
+    </section>
+
+    <div class="footerNote">
+      Teacher note: similarity check uses repeated 3-word sequences + exact phrase highlighting. Summary length goal: ≤ 40% of source (with a minimum cap for short sources).
     </div>
   </div>
 
@@ -546,31 +589,64 @@
     }
   }
 
-  // Elements
-  const stepButtons = document.querySelectorAll(".stepBtn");
-  const panels = document.querySelectorAll(".tabPanel");
+  // Wizard nav
+  const stepEls = {
+    1: $("step1"),
+    2: $("step2"),
+    3: $("step3"),
+    4: $("step4"),
+  };
+  const dotButtons = Array.from(document.querySelectorAll(".dot"));
+  let currentStep = 1;
 
-  function go(tabId){
-    stepButtons.forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
-    panels.forEach(p=>p.style.display="none");
-    $(tabId).style.display="block";
+  function showStep(n){
+    currentStep = n;
+    Object.values(stepEls).forEach(s=>s.style.display="none");
+    stepEls[n].style.display = "block";
+    dotButtons.forEach(d=>{
+      const num = Number(d.dataset.step);
+      d.classList.toggle("active", num===n);
+    });
+    if (n===4) renderSentenceList();
     syncSourceDisplay();
-    if (tabId==="t3") renderSentenceList();
     updateAll();
     window.scrollTo({top:0, behavior:"smooth"});
   }
 
-  stepButtons.forEach(btn=>btn.addEventListener("click", ()=>go(btn.dataset.tab)));
-  $("toStep2").addEventListener("click", ()=>go("t2"));
-  $("toStep3").addEventListener("click", ()=>go("t3"));
-  $("backTo1").addEventListener("click", ()=>go("t1"));
-  $("backTo2").addEventListener("click", ()=>go("t2"));
-
-  $("miniTipBtn").addEventListener("click", ()=>{
-    const box = $("miniTip");
-    box.style.display = box.style.display==="none" ? "block" : "none";
+  dotButtons.forEach(d=>{
+    d.addEventListener("click", ()=>{
+      const n = Number(d.dataset.step);
+      // allow jumping back anytime; jumping forward only if basics exist
+      if (n > currentStep){
+        if (!canGoForwardTo(n)) return;
+      }
+      showStep(n);
+    });
   });
 
+  function canGoForwardTo(n){
+    // very gentle gating so students don't skip Step 1 completely
+    if (n>=2 && normalize(source.value).length < 30) return false;
+    return true;
+  }
+
+  $("next1").addEventListener("click", ()=>{
+    if (normalize(source.value).length < 30){
+      alert("Paste a short source excerpt first (at least a couple sentences).");
+      return;
+    }
+    showStep(2);
+  });
+  $("back2").addEventListener("click", ()=>showStep(1));
+  $("next2").addEventListener("click", ()=>showStep(3));
+  $("back3").addEventListener("click", ()=>showStep(2));
+  $("next3").addEventListener("click", ()=>showStep(4));
+  $("back4").addEventListener("click", ()=>showStep(3));
+  $("finishBtn").addEventListener("click", ()=>{
+    alert("Nice work. If your checks are red, revise and try again.");
+  });
+
+  // Elements
   const source = $("source");
   const jobTitle = $("jobTitle");
   const blsUrl = $("blsUrl");
@@ -600,7 +676,8 @@
   let secondsLeft = 90;
   let labels = {};
 
-  // MLA-ish parenthetical
+  // MLA parenthetical:
+  // ("Job Title") or fallback (U.S. Bureau of Labor Statistics)
   function getInText(){
     const title = (jobTitle.value || "").trim();
     if (title) return `("${title}")`;
@@ -619,9 +696,11 @@
 
   $("copyWorksCited").addEventListener("click", ()=>copyText(getWorksCited()));
   $("useInText").addEventListener("click", ()=>{
-    if (!citePara.value.trim()) citePara.value = getInText();
-    if (!citeSum.value.trim()) citeSum.value = getInText();
+    const it = getInText();
+    if (!citePara.value.trim()) citePara.value = it;
+    if (!citeSum.value.trim()) citeSum.value = it;
     updateAll();
+    alert("Citations filled in for Paraphrase + Summary.");
   });
 
   // Timer
@@ -763,14 +842,17 @@
     const nudges = [];
     if (!draft.trim()) nudges.push("Write your paraphrase first.");
     if (draft.trim() && !citePara.value.trim()) nudges.push("Add your parenthetical citation (it’s still from the source).");
-    if (draft.trim() && sim >= 18) nudges.push("Too close. Try changing sentence order and sentence structure.");
-    if (ranges.length >= 2) nudges.push("Lots of exact phrases copied. If you keep exact wording, use quotation marks.");
+    if (draft.trim() && sim >= 18) nudges.push("Too close. Change sentence order and sentence structure.");
+    if (ranges.length >= 2) nudges.push("Too many exact phrases copied. If you keep exact words, use quotation marks.");
     if (cov && cov.pct < 60) nudges.push("Compare to your key points. You may have skipped something important.");
 
     const box = $("paraNudges");
     if (nudges.length){
       box.style.display = "block";
-      box.innerHTML = `<div class="calloutTitle">Easy fixes</div><ul style="margin:8px 0 0; padding-left:18px; color:#334155; line-height:1.45;">${nudges.map(n=>`<li>${n}</li>`).join("")}</ul>`;
+      box.innerHTML = `<div class="calloutTitle">Easy fixes</div>
+        <ul style="margin:8px 0 0; padding-left:18px; color:#334155; line-height:1.45;">
+          ${nudges.map(n=>`<li>${n}</li>`).join("")}
+        </ul>`;
     } else {
       box.style.display = "none";
       box.innerHTML = "";
@@ -835,7 +917,10 @@
     const box = $("sumNudges");
     if (nudges.length){
       box.style.display = "block";
-      box.innerHTML = `<div class="calloutTitle">Easy fixes</div><ul style="margin:8px 0 0; padding-left:18px; color:#334155; line-height:1.45;">${nudges.map(n=>`<li>${n}</li>`).join("")}</ul>`;
+      box.innerHTML = `<div class="calloutTitle">Easy fixes</div>
+        <ul style="margin:8px 0 0; padding-left:18px; color:#334155; line-height:1.45;">
+          ${nudges.map(n=>`<li>${n}</li>`).join("")}
+        </ul>`;
     } else {
       box.style.display = "none";
       box.innerHTML = "";
@@ -851,6 +936,37 @@
     $("finalBox").textContent = `${paraLine}\n\n${sumLine}`;
   }
 
+  function updateProgress(){
+    const checks = [
+      normalize(source.value).length > 30,
+      normalize(jobTitle.value).length > 0 || normalize(blsUrl.value).length > 0,
+      normalize(mainIdea.value).length > 0,
+      normalize(keyPoints.value).replace(/[-•*]/g,"").trim().length > 0,
+      normalize(paraphrase.value).length > 0,
+      normalize(citePara.value).length > 0,
+      Object.keys(labels).length > 0,
+      normalize(summary.value).length > 0,
+      normalize(citeSum.value).length > 0
+    ];
+    const done = checks.filter(Boolean).length;
+    const total = checks.length;
+    const pct = Math.round((done/total)*100);
+    $("progressPct").textContent = `${pct}%`;
+    $("progressBar").style.width = `${pct}%`;
+
+    // dots: mark done if step has its basics
+    const stepDone = {
+      1: normalize(source.value).length > 30,
+      2: normalize(mainIdea.value).length > 0,
+      3: normalize(paraphrase.value).length > 0,
+      4: normalize(summary.value).length > 0
+    };
+    dotButtons.forEach(d=>{
+      const n = Number(d.dataset.step);
+      d.classList.toggle("done", stepDone[n] && n !== currentStep);
+    });
+  }
+
   function updateAll(){
     updateCitationBoxes();
     updateSourceStats();
@@ -859,6 +975,7 @@
     updateParaphraseChecks();
     updateSummaryChecks();
     updateFinalBox();
+    updateProgress();
   }
 
   // Copy buttons
@@ -889,23 +1006,21 @@
     stopSetAside();
     renderSentenceList();
     updateAll();
-    go("t1");
+    showStep(1);
   });
 
   // Live updates
   [source, jobTitle, blsUrl, accessed, mainIdea, keyPoints, keyTerms, citePara, paraphrase, citeSum, summary].forEach(el=>{
     el.addEventListener("input", ()=>{
-      if (el === source && document.querySelector('.stepBtn.active')?.dataset?.tab === "t3") renderSentenceList();
+      if (el === source && currentStep === 4) renderSentenceList();
       updateAll();
     });
   });
 
-  $("startTimer").addEventListener("click", ()=>{ if ($("lockMode").checked) startSetAside(); });
-  $("stopTimer").addEventListener("click", stopSetAside);
-
-  // Sentence list init
+  // Init
   renderSentenceList();
   updateAll();
+  showStep(1);
 </script>
 </body>
 </html>
