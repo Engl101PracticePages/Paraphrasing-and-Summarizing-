@@ -161,6 +161,10 @@
       font-size:14px;
       line-height:1.45;
     }
+    .hint .tiny{
+      font-size:13px;
+      color:var(--muted);
+    }
 
     /* FORM */
     label{
@@ -190,7 +194,7 @@
 
     .mini{font-size:13px; color:var(--muted); margin-top:6px; line-height:1.4}
 
-    /* SMALL TAGS */
+    /* SMALL TAGS (quieter) */
     .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
     .chip{
       padding:6px 10px;
@@ -201,7 +205,7 @@
       color:var(--muted);
     }
 
-    /* CALLOUTS */
+    /* CALLOUTS (simpler) */
     .callout{
       margin-top:12px;
       border-radius:16px;
@@ -601,7 +605,7 @@
 
       <div class="btnRow" style="justify-content:flex-start;">
         <button class="btn" id="copySumBtn" disabled>Copy summary + cite</button>
-        <button class="btn primary" id="copyAllBtn" disabled>Copy all (everything)</button>
+        <button class="btn primary" id="copyAllBtn" disabled>Copy all</button>
       </div>
 
       <div class="checkRow">
@@ -613,22 +617,10 @@
 
       <div id="sumNudges" class="callout" style="display:none;"></div>
 
-      <!-- ✅ UPDATED FINAL COPY AREA -->
       <div class="callout" style="margin-top:14px;">
         <div class="calloutTitle">Final copy box</div>
-        <div class="hint">Copy this whole box and paste it into Canvas.</div>
-
-        <div class="mini" style="margin-top:10px; font-weight:900;">Original source excerpt</div>
-        <div class="bigBox" id="finalSource" style="margin-top:6px;"></div>
-
-        <div class="mini" style="margin-top:10px; font-weight:900;">Link</div>
-        <div class="bigBox mono" id="finalLink" style="margin-top:6px;"></div>
-
-        <div class="mini" style="margin-top:10px; font-weight:900;">Works Cited (MLA)</div>
-        <div class="bigBox mono" id="finalWorksCited" style="margin-top:6px;"></div>
-
-        <div class="mini" style="margin-top:10px; font-weight:900;">Your paraphrase + summary</div>
-        <div class="bigBox mono" id="finalBox" style="margin-top:6px;"></div>
+        <div class="hint">Paste this into Canvas.</div>
+        <div class="bigBox mono" id="finalBox" style="margin-top:10px;"></div>
       </div>
 
       <div class="btnRow">
@@ -767,6 +759,7 @@
   dotButtons.forEach(d=>{
     d.addEventListener("click", ()=>{
       const n = Number(d.dataset.step);
+      // allow jumping back anytime; jumping forward only if basics exist
       if (n > currentStep){
         if (!canGoForwardTo(n)) return;
       }
@@ -775,6 +768,7 @@
   });
 
   function canGoForwardTo(n){
+    // very gentle gating so students don't skip Step 1 completely
     if (n>=2 && normalize(source.value).length < 30) return false;
     return true;
   }
@@ -826,6 +820,7 @@
   let labels = {};
 
   // MLA parenthetical:
+  // ("Job Title") or fallback (U.S. Bureau of Labor Statistics)
   function getInText(){
     const title = (jobTitle.value || "").trim();
     if (title) return `("${title}")`;
@@ -1078,17 +1073,10 @@
     $("copyAllBtn").disabled = !(paraphrase.value.trim() || summary.value.trim());
   }
 
-  // ✅ UPDATED: fills all the final boxes
   function updateFinalBox(){
-    // these three are NEW:
-    $("finalSource").textContent = normalize(source.value) || "(No source pasted yet.)";
-    $("finalLink").textContent = (blsUrl.value || "").trim() || "(No URL pasted yet.)";
-    $("finalWorksCited").textContent = getWorksCited();
-
-    // this one is the original paraphrase+summary box:
     const paraLine = `Paraphrase: ${normalize(paraphrase.value)} ${normalize(citePara.value)}`.trim();
-    const sumLine  = `Summary: ${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
-    $("finalBox").textContent = `${paraLine}\n\n${sumLine}`.trim();
+    const sumLine = `Summary: ${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
+    $("finalBox").textContent = `${paraLine}\n\n${sumLine}`;
   }
 
   function updateProgress(){
@@ -1128,7 +1116,7 @@
     syncSourceDisplay();
     updateParaphraseChecks();
     updateSummaryChecks();
-    updateFinalBox();   // ✅ important: this now fills all final boxes
+    updateFinalBox();
     updateProgress();
   }
 
@@ -1141,23 +1129,7 @@
     const text = `${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
     copyText(text);
   });
-
-  // ✅ UPDATED: Copy ALL copies the entire Canvas-ready package
-  $("copyAllBtn").addEventListener("click", ()=>{
-    const allText =
-`ORIGINAL SOURCE (BLS excerpt):
-${$("finalSource").textContent}
-
-LINK:
-${$("finalLink").textContent}
-
-WORKS CITED (MLA):
-${$("finalWorksCited").textContent}
-
-${$("finalBox").textContent}`.trim();
-
-    copyText(allText);
-  });
+  $("copyAllBtn").addEventListener("click", ()=>copyText($("finalBox").textContent));
 
   // Reset
   $("resetBtn").addEventListener("click", ()=>{
