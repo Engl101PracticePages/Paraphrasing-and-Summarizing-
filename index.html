@@ -1074,9 +1074,28 @@
   }
 
   function updateFinalBox(){
-    const paraLine = `Paraphrase: ${normalize(paraphrase.value)} ${normalize(citePara.value)}`.trim();
-    const sumLine = `Summary: ${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
-    $("finalBox").textContent = `${paraLine}\n\n${sumLine}`;
+  const srcText = normalize(source.value) || "(No source pasted yet.)";
+  const urlText = (blsUrl.value || "").trim() || "(No URL pasted yet.)";
+  const wcText = getWorksCited();
+
+  const paraLine = `Paraphrase: ${normalize(paraphrase.value)} ${normalize(citePara.value)}`.trim();
+  const sumLine  = `Summary: ${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
+
+  $("finalBox").textContent =
+`ORIGINAL SOURCE (BLS excerpt):
+${srcText}
+
+LINK:
+${urlText}
+
+WORKS CITED (MLA):
+${wcText}
+
+${paraLine}
+
+${sumLine}`.trim();
+}
+
   }
 
   function updateProgress(){
