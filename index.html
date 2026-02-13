@@ -6,170 +6,260 @@
   <title>Paraphrase + Summary Practice (BLS OOH)</title>
   <style>
     :root{
-      /* Friendly, calm palette */
-      --bg1:#f7fbff;
-      --bg2:#fff7fb;
+      /* Softer, student-friendly palette */
+      --bg:#f6f8ff;
+      --bg2:#f4fffb;
       --card:#ffffff;
+
       --ink:#0f172a;
       --muted:#475569;
-      --border:#e2e8f0;
-      --shadow: 0 16px 34px rgba(15, 23, 42, 0.10);
 
-      --primary:#2563eb;   /* blue */
-      --primary2:#06b6d4;  /* teal */
-      --soft:#eff6ff;
-      --soft2:#ecfeff;
-      --soft3:#fff7ed;
+      --border:#dbe3f0;
+
+      --accent:#4f46e5;     /* indigo */
+      --accent2:#06b6d4;    /* teal */
+      --accentSoft:#eef2ff; /* light indigo */
+      --accentSoft2:#ecfeff;/* light teal */
+      --peachSoft:#fff7ed;
 
       --good:#16a34a;
       --warn:#f59e0b;
       --bad:#ef4444;
 
-      --radius:20px;
-      --radius2:26px;
+      --radius:18px;
+      --radius2:22px;
+
+      --shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
 
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
 
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family:var(--sans);
       color:var(--ink);
       background:
-        radial-gradient(1100px 520px at 10% 0%, #dbeafe 0%, transparent 70%),
-        radial-gradient(900px 420px at 90% 0%, #cffafe 0%, transparent 70%),
-        radial-gradient(900px 420px at 50% 110%, #ffe4f1 0%, transparent 70%),
-        linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+        radial-gradient(900px 420px at 12% 0%, rgba(79,70,229,0.18) 0%, transparent 65%),
+        radial-gradient(900px 420px at 88% 0%, rgba(6,182,212,0.16) 0%, transparent 65%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
     }
 
     .wrap{max-width:980px; margin:0 auto; padding:18px;}
+
+    /* HERO */
     .hero{
       border-radius: var(--radius2);
-      padding:18px 18px;
-      background: linear-gradient(90deg, rgba(37,99,235,0.92) 0%, rgba(6,182,212,0.90) 100%);
-      color:#fff;
-      box-shadow: var(--shadow);
-    }
-    h1{margin:0; font-size:22px; letter-spacing:.2px}
-    .sub{margin-top:6px; opacity:.95; line-height:1.35; font-size:14px; max-width:900px;}
-    .sub strong{color:#fff}
-
-    .card{
-      margin-top:14px;
-      background:var(--card);
+      padding:18px;
+      background: #ffffff;
       border:1px solid var(--border);
-      border-radius:var(--radius);
-      padding:14px;
       box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero:before{
+      content:"";
+      position:absolute;
+      inset:-60px -60px auto auto;
+      width:240px;
+      height:240px;
+      border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, rgba(79,70,229,0.22), transparent 60%);
+      pointer-events:none;
+    }
+    .hero:after{
+      content:"";
+      position:absolute;
+      inset:auto auto -70px -70px;
+      width:260px;
+      height:260px;
+      border-radius:999px;
+      background: radial-gradient(circle at 40% 40%, rgba(6,182,212,0.20), transparent 60%);
+      pointer-events:none;
     }
 
-    /* Wizard */
+    h1{margin:0; font-size:22px; letter-spacing:.2px}
+    .sub{
+      margin-top:8px;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:14px;
+      max-width:900px;
+    }
+    .sub strong{color:var(--ink); font-weight:900}
+
+    /* WIZARD TOP */
     .wizardTop{
       display:flex;
       gap:12px;
       flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
-      margin-top:12px;
+      margin-top:14px;
+      position:relative;
+      z-index:1;
     }
 
     .stepDots{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
     .dot{
-      width:34px; height:34px;
+      width:36px; height:36px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,0.35);
-      background: rgba(255,255,255,0.18);
-      color:#fff;
+      border:2px solid var(--border);
+      background: #fff;
+      color:var(--muted);
       display:flex;
       align-items:center;
       justify-content:center;
       font-weight:900;
       cursor:pointer;
       user-select:none;
+      transition:transform .06s ease;
     }
+    .dot:active{transform:scale(.98)}
     .dot.active{
-      background:#fff;
-      color:#0f172a;
-      border-color:#fff;
+      border-color: rgba(79,70,229,0.35);
+      background: var(--accentSoft);
+      color: var(--ink);
     }
     .dot.done{
-      background: rgba(255,255,255,0.85);
-      color:#0f172a;
-      border-color: rgba(255,255,255,0.85);
+      border-color: rgba(6,182,212,0.45);
+      background: var(--accentSoft2);
+      color: var(--ink);
     }
 
     .progressWrap{min-width:240px; flex:1; max-width:420px;}
-    .progressMeta{display:flex; justify-content:space-between; font-size:12px; opacity:.9;}
-    .bar{height:12px; border-radius:999px; background:rgba(255,255,255,0.22); border:1px solid rgba(255,255,255,0.30); overflow:hidden;}
-    .bar > div{height:100%; width:0%; background: #fff;}
+    .progressMeta{display:flex; justify-content:space-between; font-size:12px; color:var(--muted);}
+    .bar{
+      height:12px;
+      border-radius:999px;
+      background:#f1f5ff;
+      border:1px solid var(--border);
+      overflow:hidden;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+    }
 
-    /* Content blocks */
-    h2{margin:0 0 8px 0; font-size:16px}
-    .hint{color:var(--muted); font-size:13px; line-height:1.35}
-    label{display:block; font-size:13px; color:var(--muted); margin:10px 0 6px;}
+    /* CARDS */
+    .card{
+      margin-top:14px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+    }
+
+    /* HEADERS */
+    h2{margin:0 0 8px 0; font-size:17px}
+    .hint{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+    .hint .tiny{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    /* FORM */
+    label{
+      display:block;
+      font-size:13px;
+      color:var(--muted);
+      margin:12px 0 6px;
+      font-weight:800;
+    }
     textarea, input, select{
       width:100%;
       border:1px solid var(--border);
       border-radius:16px;
-      padding:11px 12px;
-      font-size:14px;
+      padding:12px;
+      font-size:15px;
       outline:none;
       background:#fff;
       color:var(--ink);
     }
-    textarea{min-height:130px; resize:vertical;}
-    select{max-width:260px;}
+    textarea{min-height:140px; resize:vertical;}
+    select{max-width:280px;}
 
-    .mini{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.35}
-    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+    textarea:focus, input:focus, select:focus{
+      border-color: rgba(79,70,229,0.40);
+      box-shadow: 0 0 0 4px rgba(79,70,229,0.10);
+    }
+
+    .mini{font-size:13px; color:var(--muted); margin-top:6px; line-height:1.4}
+
+    /* SMALL TAGS (quieter) */
+    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
     .chip{
-      padding:7px 10px;
+      padding:6px 10px;
       border-radius:999px;
       border:1px solid var(--border);
       background: #f8fafc;
-      font-size:12px;
+      font-size:12.5px;
       color:var(--muted);
     }
 
+    /* CALLOUTS (simpler) */
     .callout{
-      margin-top:10px;
-      border-radius:18px;
-      border:1px solid #bfdbfe;
-      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 75%);
+      margin-top:12px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background: #fbfdff;
       padding:12px;
     }
     .callout.teal{
-      border-color:#99f6e4;
-      background: linear-gradient(180deg, #ecfeff 0%, #ffffff 75%);
+      border-color: rgba(6,182,212,0.35);
+      background: linear-gradient(180deg, var(--accentSoft2) 0%, #ffffff 75%);
     }
     .callout.peach{
-      border-color:#fed7aa;
-      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 75%);
+      border-color: rgba(245,158,11,0.28);
+      background: linear-gradient(180deg, var(--peachSoft) 0%, #ffffff 75%);
     }
-    .calloutTitle{font-weight:900; margin-bottom:6px;}
+    .calloutTitle{
+      font-weight:900;
+      margin-bottom:6px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .calloutTitle .badge{
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      background: var(--accentSoft);
+      border:1px solid rgba(79,70,229,0.18);
+      color: var(--ink);
+      font-weight:900;
+    }
+
     .bigBox{
       background: #f8fafc;
       border:1px dashed #cbd5e1;
       border-radius:16px;
       padding:12px;
       color:var(--ink);
-      line-height:1.4;
-      font-size:14px;
+      line-height:1.5;
+      font-size:14.5px;
       white-space:pre-wrap;
     }
-    .bigBox.mono{font-family:var(--mono); font-size:12.5px;}
+    .bigBox.mono{font-family:var(--mono); font-size:13px;}
 
     mark{background: rgba(245, 158, 11, 0.25); padding:0 3px; border-radius:6px;}
 
+    /* BUTTONS */
     .btnRow{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
-      margin-top:12px;
+      margin-top:14px;
     }
     .btn{
       border:1px solid var(--border);
@@ -184,18 +274,19 @@
       gap:8px;
     }
     .btn.primary{
-      background: linear-gradient(90deg, rgba(37,99,235,0.98) 0%, rgba(6,182,212,0.95) 100%);
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
       color:#fff;
       border-color: transparent;
     }
     .btn.soft{
-      background: var(--soft);
-      border-color:#c7d2fe;
-      color:#0f172a;
+      background: var(--accentSoft);
+      border-color: rgba(79,70,229,0.25);
+      color: var(--ink);
     }
     .btn:disabled{opacity:.55; cursor:not-allowed;}
 
-    .checkRow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+    /* CHECKS */
+    .checkRow{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
     .check{
       display:flex; align-items:center; gap:8px;
       border:1px solid var(--border);
@@ -204,40 +295,69 @@
       background:#fff;
       font-size:12.5px;
       font-weight:900;
-      color:#0f172a;
+      color:var(--ink);
     }
     .lightDot{width:10px; height:10px; border-radius:999px; background:var(--warn);}
     .lightDot.ok{background:var(--good);}
     .lightDot.bad{background:var(--bad);}
 
+    /* SIMILARITY BAR */
     .simWrap{margin-top:8px;}
-    .simBar{height:12px; border-radius:999px; background:#f1f5f9; border:1px solid var(--border); overflow:hidden;}
-    .simBar > div{height:100%; width:0%; background: linear-gradient(90deg, var(--primary) 0%, var(--primary2) 100%);}
+    .simBar{
+      height:12px;
+      border-radius:999px;
+      background:#f1f5f9;
+      border:1px solid var(--border);
+      overflow:hidden;
+    }
+    .simBar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+    }
 
+    /* SOURCE HIDE */
     .hide{
       filter: blur(2px);
       opacity: .30;
       user-select:none;
     }
 
-    /* Sentence labels */
+    /* SENTENCE LABELING */
     .sentenceRow{
       border:1px solid var(--border);
-      border-radius:18px;
+      border-radius:16px;
       padding:10px 12px;
       background:#fff;
       margin-bottom:10px;
     }
     .sentenceTop{display:flex; gap:10px; align-items:flex-start; justify-content:space-between;}
-    .sentenceText{flex:1; font-size:14px; line-height:1.45; color:var(--ink);}
+    .sentenceText{flex:1; font-size:14.5px; line-height:1.5; color:var(--ink);}
 
-    /* Footer note */
+    /* FOOTER */
     .footerNote{
       margin-top:14px;
-      font-size:12px;
+      font-size:12.5px;
       color:var(--muted);
-      line-height:1.35;
+      line-height:1.45;
       text-align:center;
+    }
+
+    /* SMALL “STEP” HEADER LINE */
+    .stepHeader{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .stepPill{
+      font-size:12px;
+      font-weight:900;
+      padding:5px 9px;
+      border-radius:999px;
+      background: var(--accentSoft2);
+      border:1px solid rgba(6,182,212,0.28);
+      color: var(--ink);
     }
   </style>
 </head>
@@ -247,9 +367,10 @@
     <div class="hero">
       <h1>Paraphrase + Summary Practice (BLS OOH)</h1>
       <div class="sub">
-        You’ll do this in 4 tiny steps:
+        You’ll do this in <strong>4 tiny steps</strong>:
         <strong>1) Paste</strong> → <strong>2) Understand</strong> → <strong>3) Paraphrase</strong> → <strong>4) Summarize</strong>.
-        <br/>This tool is practice (not a grade). It highlights copied phrases and shows “too close” warnings.
+        <br/>
+        This is practice (not a grade). It highlights copied phrases and warns if your writing is <strong>too close</strong> to the source.
       </div>
 
       <div class="wizardTop">
@@ -271,14 +392,20 @@
 
     <!-- STEP 1 -->
     <section id="step1" class="card">
-      <h2>Step 1: Paste a short BLS excerpt</h2>
-      <div class="hint">Paste <strong>2–5 sentences</strong> or <strong>1 short paragraph</strong> from a BLS Occupational Outlook Handbook page.</div>
+      <div class="stepHeader">
+        <span class="stepPill">Step 1</span>
+        <h2 style="margin:0;">Paste a short BLS excerpt</h2>
+      </div>
+      <div class="hint">Paste <strong>2–5 sentences</strong> (or <strong>1 short paragraph</strong>) from a BLS Occupational Outlook Handbook page.</div>
 
       <label for="source">Source excerpt</label>
       <textarea id="source" placeholder="Paste BLS OOH text here…"></textarea>
 
       <div class="callout teal">
-        <div class="calloutTitle">Citations (easy copy)</div>
+        <div class="calloutTitle">
+          <span class="badge">Citations</span>
+          Easy copy (so you can paste into Canvas)
+        </div>
         <div class="hint">MLA-style parenthetical looks like <strong>("Job Title")</strong>.</div>
 
         <label for="jobTitle">Job title</label>
@@ -291,7 +418,7 @@
         <label for="accessed">Date accessed</label>
         <input id="accessed" value="February 12, 2026" />
 
-        <div class="callout" style="margin-top:10px;">
+        <div class="callout" style="margin-top:12px;">
           <div class="calloutTitle">Your in-text citation</div>
           <div class="bigBox" id="inTextBox">("Job Title")</div>
           <div class="btnRow" style="justify-content:flex-start;">
@@ -299,7 +426,7 @@
           </div>
         </div>
 
-        <div class="callout peach" style="margin-top:10px;">
+        <div class="callout peach" style="margin-top:12px;">
           <div class="calloutTitle">Works Cited line</div>
           <div class="bigBox mono" id="worksCitedBox">“Job Title.” Occupational Outlook Handbook, U.S. Bureau of Labor Statistics, URL. Accessed Date.</div>
           <div class="btnRow" style="justify-content:flex-start;">
@@ -321,15 +448,18 @@
 
     <!-- STEP 2 -->
     <section id="step2" class="card" style="display:none;">
-      <h2>Step 2: Show you understand it</h2>
+      <div class="stepHeader">
+        <span class="stepPill">Step 2</span>
+        <h2 style="margin:0;">Show you understand it</h2>
+      </div>
       <div class="hint">Keep it simple. These notes make the next steps easier.</div>
 
       <label for="mainIdea">Main idea (one sentence)</label>
-      <textarea id="mainIdea" style="min-height:92px;" placeholder="What is the main point?"></textarea>
+      <textarea id="mainIdea" style="min-height:95px;" placeholder="What is the main point?"></textarea>
       <div class="mini" id="mainIdeaWords">0 words • Aim for ~15–30 words.</div>
 
       <label for="keyPoints">3 key points (bullets)</label>
-      <textarea id="keyPoints" style="min-height:120px;" placeholder="- Key point 1&#10;- Key point 2&#10;- Key point 3">- </textarea>
+      <textarea id="keyPoints" style="min-height:125px;" placeholder="- Key point 1&#10;- Key point 2&#10;- Key point 3">- </textarea>
 
       <label for="keyTerms">Key terms (3–5 important words)</label>
       <input id="keyTerms" placeholder="Example: pay, training, job growth" />
@@ -348,11 +478,17 @@
 
     <!-- STEP 3 -->
     <section id="step3" class="card" style="display:none;">
-      <h2>Step 3: Write your paraphrase</h2>
+      <div class="stepHeader">
+        <span class="stepPill">Step 3</span>
+        <h2 style="margin:0;">Write your paraphrase</h2>
+      </div>
       <div class="hint">Same meaning. New sentences. New wording. If you keep exact wording, use quotation marks.</div>
 
       <div class="callout teal">
-        <div class="calloutTitle">Optional: “Set-it-aside” mode</div>
+        <div class="calloutTitle">
+          <span class="badge">Optional</span>
+          “Set-it-aside” mode
+        </div>
         <div class="hint">Hide the source for 90 seconds so you write from memory.</div>
 
         <div class="btnRow" style="justify-content:flex-start;">
@@ -394,7 +530,7 @@
         <div class="mini" id="coverageHint" style="margin-top:6px;"></div>
 
         <div style="margin-top:10px; font-weight:900; color:var(--muted);">Copied phrase highlights</div>
-        <div class="bigBox" id="paraHighlights" style="margin-top:6px;"></div>
+        <div class="bigBox" id="paraHighlights" style="margin-top:8px;"></div>
         <div class="mini">Highlight = 3+ words in a row that appear in the source.</div>
       </div>
 
@@ -419,11 +555,17 @@
 
     <!-- STEP 4 -->
     <section id="step4" class="card" style="display:none;">
-      <h2>Step 4: Write your summary</h2>
+      <div class="stepHeader">
+        <span class="stepPill">Step 4</span>
+        <h2 style="margin:0;">Write your summary</h2>
+      </div>
       <div class="hint">Much shorter than the source. Keep only the main idea(s).</div>
 
       <div class="callout teal">
-        <div class="calloutTitle">First: label the source sentences</div>
+        <div class="calloutTitle">
+          <span class="badge">First</span>
+          Label the source sentences
+        </div>
         <div class="hint">This helps you choose what to keep for a summary.</div>
 
         <div class="chips" id="labelChips">
@@ -434,7 +576,7 @@
           <div class="chip" id="cUnlabeled">Unlabeled: 0</div>
         </div>
 
-        <div style="margin-top:10px;" id="sentenceList"></div>
+        <div style="margin-top:12px;" id="sentenceList"></div>
       </div>
 
       <label for="citeSum">Citation (parenthetical)</label>
@@ -450,7 +592,7 @@
           <div class="simBar"><div id="sumSimBar"></div></div>
         </div>
 
-        <div class="chips" style="margin-top:10px;">
+        <div class="chips" style="margin-top:12px;">
           <div class="chip" id="sumWordChip">Summary: 0 words</div>
           <div class="chip" id="sourceWordChip3">Source: 0 words</div>
         </div>
@@ -458,7 +600,7 @@
         <div class="mini" id="sumLengthHint" style="margin-top:8px;"></div>
 
         <div style="margin-top:10px; font-weight:900; color:var(--muted);">Copied phrase highlights</div>
-        <div class="bigBox" id="sumHighlights" style="margin-top:6px;"></div>
+        <div class="bigBox" id="sumHighlights" style="margin-top:8px;"></div>
       </div>
 
       <div class="btnRow" style="justify-content:flex-start;">
@@ -475,10 +617,10 @@
 
       <div id="sumNudges" class="callout" style="display:none;"></div>
 
-      <div class="callout" style="margin-top:12px;">
+      <div class="callout" style="margin-top:14px;">
         <div class="calloutTitle">Final copy box</div>
         <div class="hint">Paste this into Canvas.</div>
-        <div class="bigBox mono" id="finalBox" style="margin-top:8px;"></div>
+        <div class="bigBox mono" id="finalBox" style="margin-top:10px;"></div>
       </div>
 
       <div class="btnRow">
@@ -488,7 +630,8 @@
     </section>
 
     <div class="footerNote">
-      Teacher note: similarity check uses repeated 3-word sequences + exact phrase highlighting. Summary length goal: ≤ 40% of source (with a minimum cap for short sources).
+      Teacher note: similarity check uses repeated 3-word sequences + exact phrase highlighting.
+      Summary length goal: ≤ 40% of source (with a minimum cap for short sources).
     </div>
   </div>
 
@@ -850,7 +993,7 @@
     if (nudges.length){
       box.style.display = "block";
       box.innerHTML = `<div class="calloutTitle">Easy fixes</div>
-        <ul style="margin:8px 0 0; padding-left:18px; color:#334155; line-height:1.45;">
+        <ul style="margin:8px 0 0; padding-left:18px; color:#334155; line-height:1.5;">
           ${nudges.map(n=>`<li>${n}</li>`).join("")}
         </ul>`;
     } else {
@@ -918,7 +1061,7 @@
     if (nudges.length){
       box.style.display = "block";
       box.innerHTML = `<div class="calloutTitle">Easy fixes</div>
-        <ul style="margin:8px 0 0; padding-left:18px; color:#334155; line-height:1.45;">
+        <ul style="margin:8px 0 0; padding-left:18px; color:#334155; line-height:1.5;">
           ${nudges.map(n=>`<li>${n}</li>`).join("")}
         </ul>`;
     } else {
@@ -954,7 +1097,6 @@
     $("progressPct").textContent = `${pct}%`;
     $("progressBar").style.width = `${pct}%`;
 
-    // dots: mark done if step has its basics
     const stepDone = {
       1: normalize(source.value).length > 30,
       2: normalize(mainIdea.value).length > 0,
