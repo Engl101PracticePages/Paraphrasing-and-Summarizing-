@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Paraphrase + Summary Workshop (BLS OOH)</title>
+  <style>
+    :root{
+      --bg:#0b0c10; --card:#12141b; --muted:#9aa3b2; --text:#e8ecf5;
+      --border:#242a36; --accent:#7dd3fc; --good:#86efac; --warn:#fbbf24; --bad:#fb7185;
+      --chip:#1b2230; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; background:linear-gradient(180deg, #0b0c10 0%, #0a0f1c 100%); color:var(--text); font-family:var(--sans);}
+    .wrap{max-width:1100px; margin:0 auto; padding:18px;}
+    header{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; margin-bottom:14px;}
+    h1{font-size:26px; margin:0;}
+    .sub{color:var(--muted); margin-top:6px; line-height:1.35; max-width:820px;}
+    .btn{border:1px solid var(--border); background:transparent; color:var(--text); padding:10px 12px; border-radius:12px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:700;}
+    .btn.primary{background:rgba(125,211,252,0.12); border-color:rgba(125,211,252,0.35);}
+    .btn:disabled{opacity:.45; cursor:not-allowed;}
+    .row{display:grid; grid-template-columns:1fr; gap:14px;}
+    @media(min-width: 980px){ .row.two{grid-template-columns:1fr 1fr;} }
+    .card{background:rgba(18,20,27,0.92); border:1px solid var(--border); border-radius:var(--radius); padding:14px; box-shadow: 0 10px 24px rgba(0,0,0,.28);}
+    .card h2{font-size:16px; margin:0 0 8px 0;}
+    .muted{color:var(--muted); font-size:13px; line-height:1.35}
+    textarea, input, select{width:100%; padding:10px 12px; border-radius:14px; border:1px solid var(--border); background:#0f1220; color:var(--text); font-family:var(--sans); font-size:14px; outline:none;}
+    textarea{min-height:160px; resize:vertical;}
+    label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px;}
+    .grid2{display:grid; gap:10px;}
+    @media(min-width:720px){ .grid2{grid-template-columns:1fr 1fr;} }
+    .grid3{display:grid; gap:10px;}
+    @media(min-width:720px){ .grid3{grid-template-columns:1fr 1fr 1fr;} }
+    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+    .chip{background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:12px; color:var(--muted);}
+    .tabs{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 14px;}
+    .tab{padding:10px 12px; border-radius:999px; border:1px solid var(--border); background:#0f1220; color:var(--text); cursor:pointer; font-weight:800;}
+    .tab.active{border-color:rgba(125,211,252,0.45); background:rgba(125,211,252,0.12);}
+    .sep{height:1px; background:var(--border); margin:12px 0;}
+    .box{border:1px solid var(--border); border-radius:14px; padding:10px 12px; background:#0f1220;}
+    .box.mono{font-family:var(--mono); font-size:12.5px; white-space:pre-wrap; line-height:1.45;}
+    .box.blur{filter: blur(2px); opacity:.45; user-select:none;}
+    .small{font-size:12px; color:var(--muted);}
+    .pill{display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); background:transparent; border-radius:999px; padding:6px 10px; font-size:12.5px; color:var(--text);}
+    .dot{width:10px; height:10px; border-radius:999px; background:var(--warn);}
+    .dot.ok{background:var(--good);}
+    .dot.bad{background:var(--bad);}
+    .progressWrap{display:flex; flex-direction:column; gap:6px; min-width:240px;}
+    .progressMeta{display:flex; justify-content:space-between; font-size:12px; color:var(--muted);}
+    .bar{height:10px; background:#0f1220; border:1px solid var(--border); border-radius:999px; overflow:hidden;}
+    .bar > div{height:100%; width:0%; background:rgba(125,211,252,0.55);}
+    .list{margin:0; padding-left:18px; color:var(--muted); font-size:13px; line-height:1.45;}
+    mark{background:rgba(251,191,36,0.25); color:var(--text); padding:0 3px; border-radius:6px;}
+    .controls{display:flex; gap:8px; flex-wrap:wrap;}
+    .right{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;}
+    .timerBox{border:1px solid var(--border); border-radius:14px; padding:10px 12px; background:#0f1220;}
+    .sentenceRow{border:1px solid var(--border); border-radius:14px; padding:10px 12px; background:#0f1220; margin-bottom:10px;}
+    .sentenceRowTop{display:flex; gap:10px; align-items:flex-start; justify-content:space-between;}
+    .sentenceText{flex:1; font-size:14px; line-height:1.45}
+    select{max-width:240px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Paraphrase + Summary Workshop (BLS OOH)</h1>
+        <div class="sub">Practice the process: understand → set it aside → write → compare → revise. This page gives self-checks (not grades): highlights exact copied phrases, flags closeness to the source, checks summary length, and reminds you to cite the BLS page.</div>
+      </div>
+      <div class="right">
+        <div class="progressWrap">
+          <div class="progressMeta"><span>Progress</span><span id="progressPct">0%</span></div>
+          <div class="bar"><div id="progressBar"></div></div>
+        </div>
+        <button class="btn" id="resetBtn" title="Clear all boxes">Reset</button>
+      </div>
+    </header>
+
+    <div class="tabs" role="tablist" aria-label="Workshop sections">
+      <button class="tab active" data-tab="t1">1) Understand</button>
+      <button class="tab" data-tab="t2">2) Paraphrase</button>
+      <button class="tab" data-tab="t3">3) Summarize</button>
+    </div>
+
+    <!-- TAB 1 -->
+    <section id="t1" class="tabPanel">
+      <div class="row two">
+        <div class="card">
+          <h2>Source text (from BLS OOH)</h2>
+          <div class="muted">Copy and paste <strong>2–5 sentences</strong> or <strong>1 paragraph</strong> from a BLS Occupational Outlook Handbook page.</div>
+
+          <div style="margin-top:10px;">
+            <label for="source">Source excerpt</label>
+            <textarea id="source" placeholder="Paste text from a BLS OOH page here…"></textarea>
+          </div>
+
+          <div class="grid3" style="margin-top:10px;">
+            <div>
+              <label for="jobTitle">BLS job title (for citation)</label>
+              <input id="jobTitle" placeholder="Example: Registered Nurses" />
+            </div>
+            <div>
+              <label for="blsUrl">BLS OOH URL (for Works Cited)</label>
+              <input id="blsUrl" placeholder="Paste the OOH page URL" />
+            </div>
+            <div>
+              <label for="accessed">Date accessed</label>
+              <input id="accessed" value="February 12, 2026" />
+            </div>
+          </div>
+
+          <div class="grid2" style="margin-top:10px;">
+            <div>
+              <label>Auto MLA (in-text)</label>
+              <div class="box" id="inTextBox">(BLS, Job Title)</div>
+              <div class="small" style="margin-top:6px;">This is a simple classroom citation. If your instructor wants a different format, follow that.</div>
+            </div>
+            <div>
+              <label>Works Cited (MLA)</label>
+              <div class="box mono" id="worksCitedBox">“Job Title.” Occupational Outlook Handbook, U.S. Bureau of Labor Statistics, URL. Accessed Date.</div>
+              <div class="controls" style="margin-top:8px;">
+                <button class="btn" id="copyWorksCited">Copy Works Cited</button>
+                <button class="btn primary" id="applyInText">Use this in-text citation below</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="chips" id="sourceStats">
+            <div class="chip" id="sourceWords">Words: 0</div>
+            <div class="chip" id="sourceSentences">Sentences: 0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Quick understanding notes</h2>
+          <div class="muted">Do these first. They make paraphrasing and summarizing much easier.</div>
+
+          <div style="margin-top:10px;">
+            <label for="mainIdea">Main idea (1 sentence, plain language)</label>
+            <textarea id="mainIdea" style="min-height:90px;" placeholder="In your own words: what is the main point?"></textarea>
+            <div class="small" id="mainIdeaWords">0 words • Tip: aim for ~15–30 words.</div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label for="keyPoints">Key points (3 bullets)</label>
+            <textarea id="keyPoints" style="min-height:120px;" placeholder="- Key point 1&#10;- Key point 2&#10;- Key point 3">- </textarea>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label for="keyTerms">Key terms (3–5 important words/phrases)</label>
+            <input id="keyTerms" placeholder="Example: pay, training, job growth, duties" />
+            <div class="small" style="margin-top:6px;">Key terms can stay similar to the source. Your job is to change the surrounding wording and sentence structure.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2 -->
+    <section id="t2" class="tabPanel" style="display:none;">
+      <div class="row two">
+        <div class="card">
+          <h2>Paraphrase setup</h2>
+          <div class="muted">Set-it-aside mode hides the source for 90 seconds while you draft from memory.</div>
+
+          <div class="controls" style="margin-top:10px; align-items:center;">
+            <label style="margin:0; display:flex; align-items:center; gap:10px; color:var(--muted); font-size:13px;">
+              <input type="checkbox" id="lockMode" checked style="width:auto; transform:scale(1.15);"/>
+              Set-it-aside mode
+            </label>
+            <button class="btn primary" id="startTimer">Start 90s</button>
+            <button class="btn" id="stopTimer" disabled>Stop</button>
+          </div>
+
+          <div id="timerArea" style="margin-top:10px; display:none;">
+            <div class="timerBox">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-weight:800;">Set it aside timer</div>
+                <div class="small" id="timerText">90s</div>
+              </div>
+              <div class="small" style="margin-top:6px;">Draft from memory. Don’t worry about perfection. You will compare and revise after.</div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label>Source (for compare step)</label>
+            <div class="box" id="sourceDisplay"></div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label for="citePara">Attribution / citation note</label>
+            <input id="citePara" placeholder="Example: (BLS, Registered Nurses)" />
+            <div class="small" style="margin-top:6px;">Even when you paraphrase, the idea came from the source, so you still cite it.</div>
+          </div>
+
+          <div class="chips" style="margin-top:10px;">
+            <div class="chip" id="paraWordChip">Your words: 0</div>
+            <div class="chip" id="sourceWordChip2">Source words: 0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Write your paraphrase</h2>
+          <div class="muted">Keep the same meaning. Change wording <em>and</em> structure. If you keep exact wording, use quotation marks.</div>
+
+          <div style="margin-top:10px;">
+            <label for="paraphrase">Paraphrase</label>
+            <textarea id="paraphrase" placeholder="Write your paraphrase here…"></textarea>
+          </div>
+
+          <div class="grid2" style="margin-top:10px;">
+            <div>
+              <h2 style="margin:0 0 8px 0; font-size:14px;">Similarity + length</h2>
+              <div class="small" id="paraSimilarity">Similarity: 0% (lower is better)</div>
+              <div class="bar" style="margin-top:8px;"><div id="paraSimBar"></div></div>
+              <div class="small" id="paraLengthHint" style="margin-top:8px;"></div>
+              <div class="small" id="coverageHint" style="margin-top:6px;"></div>
+            </div>
+            <div>
+              <h2 style="margin:0 0 8px 0; font-size:14px;">Exact phrase highlights</h2>
+              <div class="box" id="paraHighlights" style="min-height:86px;"></div>
+              <div class="small" style="margin-top:6px;">Highlight = 3+ words in a row that also appear in the source.</div>
+            </div>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="controls" style="justify-content:space-between;">
+            <div style="font-weight:800;">Checks</div>
+            <button class="btn" id="copyParaBtn" disabled>Copy paraphrase + cite</button>
+          </div>
+
+          <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <div class="pill"><span class="dot" id="p1"></span><span>Wrote a paraphrase</span></div>
+            <div class="pill"><span class="dot" id="p2"></span><span>Included citation note</span></div>
+            <div class="pill"><span class="dot" id="p3"></span><span>Not too close to source</span></div>
+            <div class="pill"><span class="dot" id="p4"></span><span>Avoided long exact phrases</span></div>
+          </div>
+
+          <div id="paraNudges" class="box" style="margin-top:10px; display:none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3 -->
+    <section id="t3" class="tabPanel" style="display:none;">
+      <div class="row two">
+        <div class="card">
+          <h2>Sort the source (main points vs details)</h2>
+          <div class="muted">Label each sentence. A summary keeps only the main point(s) and is much shorter.</div>
+
+          <div class="chips" style="margin-top:10px;" id="labelChips">
+            <div class="chip" id="cMain">Main: 0</div>
+            <div class="chip" id="cDetail">Detail: 0</div>
+            <div class="chip" id="cExample">Example: 0</div>
+            <div class="chip" id="cBackground">Background: 0</div>
+            <div class="chip" id="cUnlabeled">Unlabeled: 0</div>
+          </div>
+
+          <div class="sep"></div>
+          <div id="sentenceList"></div>
+        </div>
+
+        <div class="card">
+          <h2>Write your summary</h2>
+          <div class="muted">Keep only the main idea(s). No examples unless needed to understand the main point.</div>
+
+          <div style="margin-top:10px;">
+            <label for="citeSum">Attribution / citation note</label>
+            <input id="citeSum" placeholder="Example: (BLS, Registered Nurses)" />
+          </div>
+
+          <div style="margin-top:10px;">
+            <label for="summary">Summary</label>
+            <textarea id="summary" placeholder="Write your summary here…"></textarea>
+          </div>
+
+          <div class="grid2" style="margin-top:10px;">
+            <div>
+              <h2 style="margin:0 0 8px 0; font-size:14px;">Similarity + length</h2>
+              <div class="small" id="sumSimilarity">Similarity: 0% (lower is better)</div>
+              <div class="bar" style="margin-top:8px;"><div id="sumSimBar"></div></div>
+              <div class="chips" style="margin-top:10px;">
+                <div class="chip" id="sumWordChip">Summary: 0 words</div>
+                <div class="chip" id="sourceWordChip3">Source: 0 words</div>
+              </div>
+              <div class="small" id="sumLengthHint" style="margin-top:8px;"></div>
+            </div>
+
+            <div>
+              <h2 style="margin:0 0 8px 0; font-size:14px;">Exact phrase highlights</h2>
+              <div class="box" id="sumHighlights" style="min-height:86px;"></div>
+              <div class="small" style="margin-top:6px;">Highlight = 3+ words in a row that also appear in the source.</div>
+            </div>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="controls" style="justify-content:space-between;">
+            <div style="font-weight:800;">Checks</div>
+            <button class="btn" id="copySumBtn" disabled>Copy summary + cite</button>
+          </div>
+
+          <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <div class="pill"><span class="dot" id="s1"></span><span>Wrote a summary</span></div>
+            <div class="pill"><span class="dot" id="s2"></span><span>Included citation note</span></div>
+            <div class="pill"><span class="dot" id="s3"></span><span>Much shorter than source</span></div>
+            <div class="pill"><span class="dot" id="s4"></span><span>Not too close to source</span></div>
+          </div>
+
+          <div id="sumNudges" class="box" style="margin-top:10px; display:none;"></div>
+
+          <div class="sep"></div>
+
+          <div class="box" style="border-radius:18px;">
+            <div class="controls" style="justify-content:space-between;">
+              <div>
+                <div style="font-weight:800;">Final copy box (paste into Canvas)</div>
+                <div class="small">Includes your citation notes.</div>
+              </div>
+              <button class="btn primary" id="copyAllBtn" disabled>Copy all</button>
+            </div>
+            <div class="box mono" id="finalBox" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="card" style="margin-top:14px;">
+      <h2>Teacher notes</h2>
+      <div class="muted">This tool is a practice checker. It does not “grade” writing; it gives visible, rule-based nudges students can act on.</div>
+      <ul class="list" style="margin-top:10px;">
+        <li>Similarity score uses repeated 3-word sequences (lower is better).</li>
+        <li>Highlighted phrases show exact copied runs of 3+ words.</li>
+        <li>Summary length rule: ≤ 40% of source (with a minimum cap for short sources).</li>
+      </ul>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const normalize = (s) => (s || "").replace(/\\s+/g, " ").replace(/[“”]/g,'"').replace(/[‘’]/g,"'").trim();
+  const tokenize = (s) => normalize(s).toLowerCase().replace(/[^a-z0-9\\s']/g, " ").split(/\\s+/).filter(Boolean);
+  const ngrams = (tokens, n) => {
+    const out = [];
+    for (let i=0; i<=tokens.length-n; i++) out.push(tokens.slice(i,i+n).join(" "));
+    return out;
+  };
+  const countWords = (s) => tokenize(s).length;
+
+  function sentenceSplit(text) {
+    const t = normalize(text).replace(/\\n+/g, " ");
+    if (!t) return [];
+    const parts = t.split(/(?<=[.!?])\\s+(?=[A-Z0-9\"'])/).map(p=>p.trim()).filter(Boolean);
+    return parts.length ? parts : [t];
+  }
+
+  function buildNgramMatchData(source, draft, n=3) {
+    const st = tokenize(source);
+    const dt = tokenize(draft);
+    const sset = new Set(ngrams(st,n));
+    const dgrams = ngrams(dt,n);
+    let hits = 0;
+    for (const g of dgrams) if (sset.has(g)) hits++;
+    const hitRate = dgrams.length ? hits / dgrams.length : 0;
+    return {hits, total:dgrams.length, hitRate};
+  }
+
+  function highlightLongExactPhrases(source, draft, minWords=3) {
+    const srcTokens = tokenize(source);
+    const drTokens = tokenize(draft);
+    if (!srcTokens.length || !drTokens.length) return [];
+    const srcN = new Set(ngrams(srcTokens, minWords));
+    const matches = [];
+    for (let i=0; i<=drTokens.length-minWords; i++) {
+      const g = drTokens.slice(i, i+minWords).join(" ");
+      if (srcN.has(g)) {
+        let j = i + minWords;
+        while (j < drTokens.length) {
+          const extended = drTokens.slice(i, j+1).join(" ");
+          const extendedStr = " " + srcTokens.join(" ") + " ";
+          if (extendedStr.includes(" " + extended + " ")) j++;
+          else break;
+        }
+        matches.push({start:i, end:j});
+        i = j-1;
+      }
+    }
+    matches.sort((a,b)=>a.start-b.start);
+    const merged = [];
+    for (const m of matches) {
+      const last = merged[merged.length-1];
+      if (!last || m.start > last.end) merged.push({...m});
+      else last.end = Math.max(last.end, m.end);
+    }
+    return merged;
+  }
+
+  function renderHighlights(draft, ranges) {
+    const tokens = tokenize(draft);
+    if (!tokens.length) return '<span class="small">(nothing yet)</span>';
+    const marks = new Array(tokens.length).fill(false);
+    for (const r of ranges) for (let i=r.start; i<r.end && i<marks.length; i++) marks[i]=true;
+
+    let html = "";
+    let i=0;
+    while (i<tokens.length) {
+      const marked = marks[i];
+      let j=i;
+      while (j<tokens.length && marks[j]===marked) j++;
+      const chunk = tokens.slice(i,j).join(" ");
+      html += marked ? `<mark>${chunk}</mark>` : chunk;
+      html += " ";
+      i=j;
+    }
+    return html.trim();
+  }
+
+  function setDot(dotEl, ok) {
+    dotEl.classList.remove("ok","bad");
+    if (ok) dotEl.classList.add("ok");
+    else dotEl.classList.add("bad");
+  }
+
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); }
+    catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+  }
+
+  // Tabs
+  const tabButtons = document.querySelectorAll(".tab");
+  const panels = document.querySelectorAll(".tabPanel");
+  tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabButtons.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      panels.forEach(p=>p.style.display="none");
+      document.getElementById(btn.dataset.tab).style.display = "block";
+      syncSourceDisplay();
+      if (btn.dataset.tab === "t3") renderSentenceList();
+      updateAll();
+    });
+  });
+
+  // Elements
+  const source = $("source");
+  const jobTitle = $("jobTitle");
+  const blsUrl = $("blsUrl");
+  const accessed = $("accessed");
+  const inTextBox = $("inTextBox");
+  const worksCitedBox = $("worksCitedBox");
+
+  const mainIdea = $("mainIdea");
+  const keyPoints = $("keyPoints");
+  const keyTerms = $("keyTerms");
+
+  const citePara = $("citePara");
+  const paraphrase = $("paraphrase");
+  const lockMode = $("lockMode");
+  const startTimer = $("startTimer");
+  const stopTimer = $("stopTimer");
+  const timerArea = $("timerArea");
+  const timerText = $("timerText");
+  const sourceDisplay = $("sourceDisplay");
+
+  const summary = $("summary");
+  const citeSum = $("citeSum");
+  const sentenceList = $("sentenceList");
+
+  let timerId = null;
+  let secondsLeft = 90;
+  let labels = {}; // sentence index -> label
+
+  // Citation helpers
+  function getInText() {
+    const title = (jobTitle.value || "Job Title").trim();
+    return `(BLS, ${title})`;
+  }
+  function getWorksCited() {
+    const title = (jobTitle.value || "Job Title").trim();
+    const url = (blsUrl.value || "URL").trim();
+    const acc = (accessed.value || "Date").trim();
+    return `“${title}.” Occupational Outlook Handbook, U.S. Bureau of Labor Statistics, ${url}. Accessed ${acc}.`;
+  }
+  function updateCitationBoxes() {
+    inTextBox.textContent = getInText();
+    worksCitedBox.textContent = getWorksCited();
+  }
+
+  $("copyWorksCited").addEventListener("click", ()=> copyText(getWorksCited()));
+  $("applyInText").addEventListener("click", ()=>{
+    if (!citePara.value.trim()) citePara.value = getInText();
+    if (!citeSum.value.trim()) citeSum.value = getInText();
+    updateAll();
+  });
+
+  // Timer logic
+  function syncSourceDisplay(){
+    const hide = lockMode.checked && timerId;
+    if (hide) {
+      sourceDisplay.classList.add("blur");
+      sourceDisplay.textContent = "(Source hidden during set-it-aside mode)";
+    } else {
+      sourceDisplay.classList.remove("blur");
+      sourceDisplay.textContent = normalize(source.value);
+    }
+  }
+  function startSetAside(){
+    if (timerId) return;
+    secondsLeft = 90;
+    timerText.textContent = `${secondsLeft}s`;
+    timerArea.style.display = "block";
+    stopTimer.disabled = false;
+    startTimer.disabled = true;
+
+    timerId = setInterval(()=>{
+      secondsLeft--;
+      timerText.textContent = `${secondsLeft}s`;
+      syncSourceDisplay();
+      if (secondsLeft <= 0) stopSetAside();
+    }, 1000);
+    syncSourceDisplay();
+  }
+  function stopSetAside(){
+    if (!timerId) return;
+    clearInterval(timerId);
+    timerId = null;
+    timerArea.style.display = "none";
+    stopTimer.disabled = true;
+    startTimer.disabled = false;
+    syncSourceDisplay();
+  }
+
+  startTimer.addEventListener("click", ()=> {
+    if (!lockMode.checked) return;
+    startSetAside();
+  });
+  stopTimer.addEventListener("click", stopSetAside);
+  lockMode.addEventListener("change", ()=> {
+    if (!lockMode.checked) stopSetAside();
+    syncSourceDisplay();
+  });
+
+  // Sentence labeling
+  function renderSentenceList(){
+    const sents = sentenceSplit(source.value);
+    sentenceList.innerHTML = "";
+    sents.forEach((s, idx)=>{
+      const row = document.createElement("div");
+      row.className = "sentenceRow";
+      row.innerHTML = `
+        <div class="sentenceRowTop">
+          <div class="sentenceText">${s.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
+          <select data-idx="${idx}">
+            <option value="" ${!labels[idx] ? "selected":""}>Label…</option>
+            <option value="main" ${labels[idx]==="main" ? "selected":""}>Main point</option>
+            <option value="detail" ${labels[idx]==="detail" ? "selected":""}>Supporting detail</option>
+            <option value="example" ${labels[idx]==="example" ? "selected":""}>Example</option>
+            <option value="background" ${labels[idx]==="background" ? "selected":""}>Background/extra</option>
+          </select>
+        </div>
+      `;
+      sentenceList.appendChild(row);
+    });
+
+    sentenceList.querySelectorAll("select").forEach(sel=>{
+      sel.addEventListener("change", (e)=>{
+        const i = Number(e.target.dataset.idx);
+        const v = e.target.value;
+        if (!v) delete labels[i];
+        else labels[i] = v;
+        updateAll();
+      });
+    });
+
+    updateAll();
+  }
+
+  // Checks
+  function updateSourceStats(){
+    const sw = countWords(source.value);
+    const ss = sentenceSplit(source.value).length;
+    $("sourceWords").textContent = `Words: ${sw}`;
+    $("sourceSentences").textContent = `Sentences: ${source.value.trim() ? ss : 0}`;
+    $("sourceWordChip2").textContent = `Source words: ${sw}`;
+    $("sourceWordChip3").textContent = `Source: ${sw} words`;
+  }
+
+  function updateMainIdeaWords(){
+    $("mainIdeaWords").textContent = `${countWords(mainIdea.value)} words • Tip: aim for ~15–30 words.`;
+  }
+
+  function keyPointCoverage(){
+    const kp = normalize(keyPoints.value).split("\n").map(l=>l.replace(/^[-•*]\s*/,"").trim()).filter(Boolean);
+    if (!kp.length || !paraphrase.value.trim()) return null;
+    const pLower = normalize(paraphrase.value).toLowerCase();
+    let hit = 0;
+    kp.forEach(point=>{
+      const tokens = tokenize(point);
+      const signal = tokens.filter(t=>t.length>=5).slice(0,4);
+      if (!signal.length) { hit++; return; }
+      if (signal.some(t=>pLower.includes(t))) hit++;
+    });
+    return {hit, total:kp.length, pct: Math.round((hit/kp.length)*100)};
+  }
+
+  function updateParaphraseChecks(){
+    const src = source.value;
+    const draft = paraphrase.value;
+
+    $("paraWordChip").textContent = `Your words: ${countWords(draft)}`;
+
+    const match = buildNgramMatchData(src, draft, 3);
+    const sim = Math.max(0, Math.min(100, Math.round(match.hitRate*100)));
+    $("paraSimilarity").textContent = `Similarity: ${sim}% (lower is better)`;
+    $("paraSimBar").style.width = `${sim}%`;
+
+    const sw = countWords(src), pw = countWords(draft);
+    let lengthHint = "";
+    if (sw && pw){
+      const ratio = pw/sw;
+      if (ratio < 0.6) lengthHint = "Your paraphrase is much shorter than the source. Did you drop important info?";
+      else if (ratio > 1.6) lengthHint = "Your paraphrase is much longer than the source. Are you adding ideas not in the source?";
+    }
+    $("paraLengthHint").textContent = lengthHint;
+
+    const ranges = highlightLongExactPhrases(src, draft, 3);
+    $("paraHighlights").innerHTML = renderHighlights(draft, ranges);
+
+    const cov = keyPointCoverage();
+    $("coverageHint").textContent = cov ? `Key-point coverage: ${cov.hit}/${cov.total} (${cov.pct}%)` : "";
+
+    // Pills
+    setDot($("p1"), Boolean(draft.trim()));
+    setDot($("p2"), Boolean(citePara.value.trim()));
+    setDot($("p3"), sim < 18);
+    setDot($("p4"), ranges.length <= 1);
+
+    // Nudges
+    const nudges = [];
+    if (!draft.trim()) nudges.push("Write a paraphrase to see checks.");
+    if (draft.trim() && !citePara.value.trim()) nudges.push("Add a citation/attribution note (even for paraphrase).");
+    if (draft.trim() && sim >= 18) nudges.push("Your wording is still pretty close to the source. Try changing sentence structure, too.");
+    if (ranges.length >= 2) nudges.push("You have multiple exact phrases copied from the source. If you keep exact wording, put it in quotation marks.");
+    if (cov && cov.pct < 60) nudges.push("You may be dropping key points. Compare your paraphrase to your key-point list.");
+    if (draft.trim() && !mainIdea.value.trim()) nudges.push("Write the main idea first. It makes paraphrasing easier.");
+
+    const box = $("paraNudges");
+    if (nudges.length){
+      box.style.display = "block";
+      box.innerHTML = `<div style="font-weight:800; margin-bottom:6px;">Revision nudges</div><ul class="list">${nudges.map(n=>`<li>${n}</li>`).join("")}</ul>`;
+    } else {
+      box.style.display = "none";
+      box.innerHTML = "";
+    }
+
+    $("copyParaBtn").disabled = !draft.trim();
+  }
+
+  function updateSummaryChecks(){
+    const src = source.value;
+    const draft = summary.value;
+
+    const match = buildNgramMatchData(src, draft, 3);
+    const sim = Math.max(0, Math.min(100, Math.round(match.hitRate*100)));
+    $("sumSimilarity").textContent = `Similarity: ${sim}% (lower is better)`;
+    $("sumSimBar").style.width = `${sim}%`;
+
+    const sw = countWords(src), dw = countWords(draft);
+    $("sumWordChip").textContent = `Summary: ${dw} words`;
+
+    const maxLen = sw ? Math.max(20, Math.round(sw*0.4)) : 0;
+    const lengthOk = sw && dw ? (dw <= maxLen) : false;
+
+    let hint = "";
+    if (sw && dw){
+      if (!lengthOk) hint = "Your summary is still pretty long. A summary should keep only the main point(s) and be much shorter than the original.";
+      else if (dw < 8) hint = "Your summary might be too short to capture the main idea clearly.";
+    }
+    $("sumLengthHint").textContent = hint;
+
+    const ranges = highlightLongExactPhrases(src, draft, 3);
+    $("sumHighlights").innerHTML = renderHighlights(draft, ranges);
+
+    // Label counts
+    const sents = sentenceSplit(src);
+    const counts = {main:0, detail:0, example:0, background:0, unlabeled:0};
+    for (let i=0; i<sents.length; i++){
+      const v = labels[i];
+      if (!v) counts.unlabeled++;
+      else counts[v]++;
+    }
+    $("cMain").textContent = `Main: ${counts.main}`;
+    $("cDetail").textContent = `Detail: ${counts.detail}`;
+    $("cExample").textContent = `Example: ${counts.example}`;
+    $("cBackground").textContent = `Background: ${counts.background}`;
+    $("cUnlabeled").textContent = `Unlabeled: ${counts.unlabeled}`;
+
+    const labeled = sents.length - counts.unlabeled;
+    const detailOverload = labeled >= 2 && counts.main < Math.max(1, Math.round(labeled*0.34));
+
+    // Pills
+    setDot($("s1"), Boolean(draft.trim()));
+    setDot($("s2"), Boolean(citeSum.value.trim()));
+    setDot($("s3"), Boolean(lengthOk));
+    setDot($("s4"), sim < 18);
+
+    // Nudges
+    const nudges = [];
+    if (!draft.trim()) nudges.push("Write a summary to see checks.");
+    if (draft.trim() && !citeSum.value.trim()) nudges.push("Add a citation/attribution note (even for summary).");
+    if (draft.trim() && !lengthOk) nudges.push("Your summary may be too long. Keep only main point(s).");
+    if (draft.trim() && sim >= 18) nudges.push("Your summary wording is close to the source. Use your own phrasing.");
+    if (detailOverload) nudges.push("Your labeling suggests you may be keeping too many details. A summary should keep only main points.");
+
+    const box = $("sumNudges");
+    if (nudges.length){
+      box.style.display = "block";
+      box.innerHTML = `<div style="font-weight:800; margin-bottom:6px;">Revision nudges</div><ul class="list">${nudges.map(n=>`<li>${n}</li>`).join("")}</ul>`;
+    } else {
+      box.style.display = "none";
+      box.innerHTML = "";
+    }
+
+    $("copySumBtn").disabled = !draft.trim();
+    $("copyAllBtn").disabled = !(paraphrase.value.trim() || summary.value.trim());
+  }
+
+  function updateFinalBox(){
+    const paraLine = `Paraphrase: ${normalize(paraphrase.value)} ${normalize(citePara.value)}`.trim();
+    const sumLine = `Summary: ${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
+    $("finalBox").textContent = `${paraLine}\n\n${sumLine}`;
+  }
+
+  function updateProgress(){
+    const checks = [
+      normalize(source.value).length > 30,
+      normalize(mainIdea.value).length > 0,
+      normalize(keyPoints.value).replace(/[-•*]/g,"").trim().length > 0,
+      normalize(keyTerms.value).length > 0,
+      normalize(paraphrase.value).length > 0,
+      normalize(citePara.value).length > 0,
+      Object.keys(labels).length > 0,
+      normalize(summary.value).length > 0,
+      normalize(citeSum.value).length > 0
+    ];
+    const done = checks.filter(Boolean).length;
+    const total = checks.length;
+    const pct = Math.round((done/total)*100);
+    $("progressPct").textContent = `${pct}%`;
+    $("progressBar").style.width = `${pct}%`;
+  }
+
+  function updateAll(){
+    updateCitationBoxes();
+    updateSourceStats();
+    updateMainIdeaWords();
+    syncSourceDisplay();
+    updateParaphraseChecks();
+    updateSummaryChecks();
+    updateFinalBox();
+    updateProgress();
+  }
+
+  // Copy buttons
+  $("copyParaBtn").addEventListener("click", ()=> {
+    const text = `${normalize(paraphrase.value)} ${normalize(citePara.value)}`.trim();
+    copyText(text);
+  });
+  $("copySumBtn").addEventListener("click", ()=> {
+    const text = `${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
+    copyText(text);
+  });
+  $("copyAllBtn").addEventListener("click", ()=> {
+    copyText($("finalBox").textContent);
+  });
+
+  // Reset
+  $("resetBtn").addEventListener("click", ()=>{
+    source.value = "";
+    jobTitle.value = "";
+    blsUrl.value = "";
+    // keep accessed date as-is
+    mainIdea.value = "";
+    keyPoints.value = "- ";
+    keyTerms.value = "";
+    citePara.value = "";
+    paraphrase.value = "";
+    citeSum.value = "";
+    summary.value = "";
+    labels = {};
+    stopSetAside();
+    renderSentenceList();
+    updateAll();
+  });
+
+  // Live update wiring
+  [source, jobTitle, blsUrl, accessed, mainIdea, keyPoints, keyTerms, citePara, paraphrase, citeSum, summary].forEach(el=>{
+    el.addEventListener("input", ()=>{
+      if (el === source) {
+        // when source changes, update sentence list if on tab 3
+        if (document.querySelector('.tab.active')?.dataset?.tab === 't3') renderSentenceList();
+      }
+      updateAll();
+    });
+  });
+
+  // init
+  sourceDisplay.textContent = "";
+  renderSentenceList();
+  updateAll();
+</script>
+</body>
+</html>
+"""
+path = Path("/mnt/data/index.html")
+path.write_text(html, encoding="utf-8")
+str(path)
