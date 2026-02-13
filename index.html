@@ -605,7 +605,7 @@
 
       <div class="btnRow" style="justify-content:flex-start;">
         <button class="btn" id="copySumBtn" disabled>Copy summary + cite</button>
-        <button class="btn primary" id="copyAllBtn" disabled>Copy all</button>
+        <button class="btn primary" id="copyAllBtn" disabled>Copy all (includes source + MLA)</button>
       </div>
 
       <div class="checkRow">
@@ -619,7 +619,7 @@
 
       <div class="callout" style="margin-top:14px;">
         <div class="calloutTitle">Final copy box</div>
-        <div class="hint">Paste this into Canvas.</div>
+        <div class="hint">This includes the <strong>original source excerpt</strong>, your <strong>MLA in-text</strong>, your <strong>Works Cited</strong>, plus your paraphrase + summary.</div>
         <div class="bigBox mono" id="finalBox" style="margin-top:10px;"></div>
       </div>
 
@@ -647,11 +647,34 @@
   };
   const countWords = (s) => tokenize(s).length;
 
+  // ✅ Fix: avoid regex lookbehind (can break JS in some embedded browsers)
   function sentenceSplit(text){
-    const t = normalize(text).replace(/\n+/g, " ");
+    const t = normalize(text).replace(/\n+/g, " ").trim();
     if (!t) return [];
-    const parts = t.split(/(?<=[.!?])\s+(?=[A-Z0-9"'])/).map(p=>p.trim()).filter(Boolean);
-    return parts.length ? parts : [t];
+    const parts = [];
+    let cur = "";
+
+    for (let i = 0; i < t.length; i++){
+      const ch = t[i];
+      cur += ch;
+
+      if (ch === "." || ch === "!" || ch === "?"){
+        // consume any closing quotes/brackets immediately after punctuation
+        let j = i + 1;
+        while (j < t.length && /["')\]]/.test(t[j])) { cur += t[j]; j++; i++; }
+
+        // split when punctuation is followed by whitespace (new sentence)
+        if (j < t.length && /\s/.test(t[j])){
+          parts.push(cur.trim());
+          cur = "";
+          // skip extra spaces
+          while (j < t.length && /\s/.test(t[j])) j++;
+          i = j - 1;
+        }
+      }
+    }
+    if (cur.trim()) parts.push(cur.trim());
+    return parts;
   }
 
   function buildNgramMatchData(source, draft, n=3){
@@ -671,14 +694,15 @@
     if (!srcTokens.length || !drTokens.length) return [];
     const srcN = new Set(ngrams(srcTokens, minWords));
     const matches = [];
+    const srcJoined = " " + srcTokens.join(" ") + " ";
+
     for (let i=0; i<=drTokens.length-minWords; i++){
       const g = drTokens.slice(i, i+minWords).join(" ");
       if (srcN.has(g)){
         let j = i + minWords;
         while (j < drTokens.length){
           const extended = drTokens.slice(i, j+1).join(" ");
-          const extendedStr = " " + srcTokens.join(" ") + " ";
-          if (extendedStr.includes(" " + extended + " ")) j++;
+          if (srcJoined.includes(" " + extended + " ")) j++;
           else break;
         }
         matches.push({start:i, end:j});
@@ -716,6 +740,7 @@
   }
 
   function setDot(dotEl, ok){
+    if (!dotEl) return;
     dotEl.classList.remove("ok","bad");
     dotEl.classList.add(ok ? "ok" : "bad");
   }
@@ -759,7 +784,6 @@
   dotButtons.forEach(d=>{
     d.addEventListener("click", ()=>{
       const n = Number(d.dataset.step);
-      // allow jumping back anytime; jumping forward only if basics exist
       if (n > currentStep){
         if (!canGoForwardTo(n)) return;
       }
@@ -768,7 +792,6 @@
   });
 
   function canGoForwardTo(n){
-    // very gentle gating so students don't skip Step 1 completely
     if (n>=2 && normalize(source.value).length < 30) return false;
     return true;
   }
@@ -820,7 +843,6 @@
   let labels = {};
 
   // MLA parenthetical:
-  // ("Job Title") or fallback (U.S. Bureau of Labor Statistics)
   function getInText(){
     const title = (jobTitle.value || "").trim();
     if (title) return `("${title}")`;
@@ -1070,13 +1092,37 @@
     }
 
     $("copySumBtn").disabled = !draft.trim();
-    $("copyAllBtn").disabled = !(paraphrase.value.trim() || summary.value.trim());
+    $("copyAllBtn").disabled = !(normalize(source.value).length || paraphrase.value.trim() || summary.value.trim());
   }
 
+  // ✅ Fix: Final box now includes Source excerpt + MLA (in-text + Works Cited) too
   function updateFinalBox(){
-    const paraLine = `Paraphrase: ${normalize(paraphrase.value)} ${normalize(citePara.value)}`.trim();
-    const sumLine = `Summary: ${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
-    $("finalBox").textContent = `${paraLine}\n\n${sumLine}`;
+    const src = normalize(source.value);
+    const it = getInText();
+    const wc = getWorksCited();
+
+    const para = normalize(paraphrase.value);
+    const paraC = normalize(citePara.value) || it;
+    const sum = normalize(summary.value);
+    const sumC = normalize(citeSum.value) || it;
+
+    const paraLine = para ? `Paraphrase: ${para} ${paraC}`.trim() : "Paraphrase: (not written yet)";
+    const sumLine  = sum  ? `Summary: ${sum} ${sumC}`.trim()  : "Summary: (not written yet)";
+
+    $("finalBox").textContent =
+`SOURCE EXCERPT
+${src || "(paste a source excerpt in Step 1)"}
+
+MLA IN-TEXT (PARENTHETICAL)
+${it}
+
+WORKS CITED
+${wc}
+
+YOUR WORK
+${paraLine}
+
+${sumLine}`;
   }
 
   function updateProgress(){
@@ -1122,11 +1168,15 @@
 
   // Copy buttons
   $("copyParaBtn").addEventListener("click", ()=>{
-    const text = `${normalize(paraphrase.value)} ${normalize(citePara.value)}`.trim();
+    const it = getInText();
+    const cite = normalize(citePara.value) || it;
+    const text = `${normalize(paraphrase.value)} ${cite}`.trim();
     copyText(text);
   });
   $("copySumBtn").addEventListener("click", ()=>{
-    const text = `${normalize(summary.value)} ${normalize(citeSum.value)}`.trim();
+    const it = getInText();
+    const cite = normalize(citeSum.value) || it;
+    const text = `${normalize(summary.value)} ${cite}`.trim();
     copyText(text);
   });
   $("copyAllBtn").addEventListener("click", ()=>copyText($("finalBox").textContent));
